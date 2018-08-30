@@ -22,3 +22,37 @@ class Disease(models.Model):
   def save(self, *args, **kwargs):
     raise Exception("This model is read-only")
 
+class Protein(models.Model):
+  tcrd_model = True
+
+  id = models.IntegerField(primary_key=True)
+  name = models.CharField(max_length=255)
+  description = models.TextField()
+  uniprot = models.CharField(max_length=20)
+  up_version = models.IntegerField()
+  geneid = models.IntegerField()
+  sym = models.CharField(max_length=20)
+  family = models.CharField(max_length=255)
+
+  # TODO: This will need to become a foreign key!
+  dtoid = models.CharField(max_length=13)
+
+  class Meta:
+    ordering = ('id', )
+    db_table = 'protein'
+
+
+class Target(models.Model):
+  tcrd_model = True
+
+  id = models.IntegerField(primary_key=True)
+  name = models.CharField(max_length=255)
+  ttype = models.CharField(max_length=255)
+  description = models.TextField()
+  tdl = models.CharField(max_length=255)
+  fam = models.CharField(max_length=255)
+  famext = models.CharField(max_length=255)
+
+  class Meta:
+    ordering = ('id', )
+    db_table = 'target'

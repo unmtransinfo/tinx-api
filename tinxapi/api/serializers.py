@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from models import Disease
+from models import Disease, Target
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -10,4 +10,10 @@ class DiseaseSerializer(serializers.ModelSerializer):
   class Meta:
     model = Disease
     fields = ('id', 'doid', 'name', 'summary', 'novelty')
+
+
+class TargetSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Target
+    fields = ('id', 'name', 'ttype', 'description', 'tdl', 'fam', 'famext')
 
