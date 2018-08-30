@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from models import Disease, Target
+from models import Disease, Target, T2TC
 
 
 class DiseaseSerializer(serializers.ModelSerializer):

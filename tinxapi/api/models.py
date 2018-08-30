@@ -56,3 +56,9 @@ class Target(models.Model):
   class Meta:
     ordering = ('id', )
     db_table = 'target'
+
+
+class T2TC(models.Model):
+  tcrd_model = True
+  target_id = models.ForeignKey(Target)
+  protein_id = models.ForeignKey(Protein)

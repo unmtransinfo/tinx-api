@@ -22,6 +22,7 @@ class DiseaseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
   queryset = Disease.objects.all()
   serializer_class = DiseaseSerializer
 
+
 # TODO: Add data from protein and novelty score???
 class TargetViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
