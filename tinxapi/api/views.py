@@ -12,7 +12,7 @@ from rest_framework import mixins
 
 from django.http import HttpResponse
 
-from models import Disease, Target
+from models import Disease, Target, T2TC
 from serializers import DiseaseSerializer, TargetSerializer
 from paginators import RestrictedPagination
 
@@ -23,9 +23,13 @@ class DiseaseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
   serializer_class = DiseaseSerializer
 
 
-# TODO: Add data from protein and novelty score???
 class TargetViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
-  queryset = Target.objects.all()
+  queryset = T2TC.objects\
+    .select_related('target')\
+    .select_related('protein')\
+    .prefetch_related('protein__novelty_set')\
+    .all()
+
   serializer_class = TargetSerializer
 

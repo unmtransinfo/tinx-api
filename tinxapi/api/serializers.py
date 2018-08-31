@@ -12,8 +12,12 @@ class DiseaseSerializer(serializers.ModelSerializer):
     fields = ('id', 'doid', 'name', 'summary', 'novelty')
 
 
-class TargetSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Target
-    fields = ('id', 'name', 'ttype', 'description', 'tdl', 'fam', 'famext')
+class TargetSerializer(serializers.Serializer):
+  id = serializers.IntegerField(source='target_id')
+  name = serializers.CharField(source='target.name')
+  uniprot = serializers.CharField(source='protein.uniprot')
+  sym = serializers.CharField(source='protein.sym')
+  fam = serializers.CharField(source='target.fam')
+  famext = serializers.CharField(source='target.famext')
+  tdl = serializers.CharField(source='target.tdl')
 
