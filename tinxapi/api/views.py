@@ -6,14 +6,14 @@ from django.shortcuts import render
 # Create your views here.
 
 
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from rest_framework import mixins
 
 from django.http import HttpResponse
 
-from models import Disease, Target, T2TC
-from serializers import DiseaseSerializer, TargetSerializer
+from models import Disease, Target, T2TC, Importance, Protein
+from serializers import DiseaseSerializer, TargetSerializer, ImportanceSerializer, ProteinSerializer
 from paginators import RestrictedPagination
 
 
@@ -32,4 +32,15 @@ class TargetViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     .all()
 
   serializer_class = TargetSerializer
+
+class TargetDiseasesView(generics.GenericAPIView):
+  pagination_class = RestrictedPagination
+  queryset = Protein.objects.prefetch_related('importance_set').all()
+  serializer_class = ImportanceSerializer
+
+  def get(self, request, *args, **kwargs):
+    protein = self.get_object()
+    importance = protein._prefetched_objects_cache['importance']
+    serializer = ImportanceSerializer(importance.all(), many=True)
+    return Response(serializer.data)
 

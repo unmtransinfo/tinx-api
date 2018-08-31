@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from models import Disease, Target, T2TC
+from models import Disease, Target, T2TC, Importance, Protein
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -20,4 +20,18 @@ class TargetSerializer(serializers.Serializer):
   fam = serializers.CharField(source='target.fam')
   famext = serializers.CharField(source='target.famext')
   tdl = serializers.CharField(source='target.tdl')
+
+#  diseases = serializers.HyperlinkedRelatedField(many=True,
+#                                                 read_only=True,
+#                                                 view_name='target-diseases')
+
+class ProteinSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Protein
+    fields = ('name',)
+
+class ImportanceSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Importance
+    fields = ('protein_id', 'disease_id', 'score',)
 
