@@ -13,17 +13,21 @@ from rest_framework import mixins
 from django.http import HttpResponse
 
 from models import Disease, Target, T2TC, Importance, Protein
-from serializers import DiseaseSerializer, TargetSerializer, ImportanceSerializer, ProteinSerializer
+from serializers import DiseaseSerializer, TargetSerializer, TargetDiseaseSerializer
 from paginators import RestrictedPagination
 
 
-class DiseaseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class DiseaseViewSet(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
   queryset = Disease.objects.all()
   serializer_class = DiseaseSerializer
 
 
-class TargetViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class TargetViewSet(mixins.ListModelMixin,
+                    mixins.RetrieveModelMixin,
+                    viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
   queryset = T2TC.objects\
     .select_related('target')\
@@ -33,14 +37,14 @@ class TargetViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
   serializer_class = TargetSerializer
 
+# TODO: Get pagination working. Probably needs to become a ListAPIView??
 class TargetDiseasesView(generics.GenericAPIView):
   pagination_class = RestrictedPagination
-  queryset = Protein.objects.prefetch_related('importance_set').all()
-  serializer_class = ImportanceSerializer
+  queryset = Protein.objects.prefetch_related('importance_set').prefetch_related().all()
 
   def get(self, request, *args, **kwargs):
     protein = self.get_object()
     importance = protein._prefetched_objects_cache['importance']
-    serializer = ImportanceSerializer(importance.all(), many=True)
+    serializer = TargetDiseaseSerializer(importance.all(), many=True)
     return Response(serializer.data)
 

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from models import Disease, Target, T2TC, Importance, Protein
 
@@ -20,18 +21,28 @@ class TargetSerializer(serializers.Serializer):
   fam = serializers.CharField(source='target.fam')
   famext = serializers.CharField(source='target.famext')
   tdl = serializers.CharField(source='target.tdl')
+  # TODO: Get this working...
+  #  novelty = serializers.DecimalField(max_digits=34, decimal_places=16, source='protein.novelty_set.score')
 
-#  diseases = serializers.HyperlinkedRelatedField(many=True,
-#                                                 read_only=True,
-#                                                 view_name='target-diseases')
+  diseases = serializers.SerializerMethodField()
+
+  def get_diseases(self, obj):
+    return reverse('target-diseases',
+                   kwargs={'pk': obj.pk},
+                   request=self.context['request'])
+
 
 class ProteinSerializer(serializers.ModelSerializer):
   class Meta:
     model = Protein
     fields = ('name',)
 
-class ImportanceSerializer(serializers.ModelSerializer):
+
+class TargetDiseaseSerializer(serializers.ModelSerializer):
+  disease = DiseaseSerializer()
+  importance = serializers.DecimalField(max_digits=34, decimal_places=16, source='score')
+
   class Meta:
     model = Importance
-    fields = ('protein_id', 'disease_id', 'score',)
+    fields = ('disease', 'importance',)
 
