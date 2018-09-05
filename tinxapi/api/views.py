@@ -21,8 +21,20 @@ class DiseaseViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
                      viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
-  queryset = Disease.objects.all()
   serializer_class = DiseaseSerializer
+
+  def get_queryset(self):
+    parent_id = self.request.query_params.get('parent', None)
+    parent = Disease.objects.filter(id=parent_id).first()
+    if parent_id is None:
+      return Disease.objects.all()
+    else:
+      return Disease.objects.extra(tables=['do_parent'],
+                                   where=['do_parent.doid = tinx_disease.doid',
+                                          'do_parent.parent=%s'],
+                                   params=[parent.doid],
+                                   select={'parent_id': 'do_parent.parent'}).all()
+
 
 
 class TargetViewSet(mixins.ListModelMixin,
