@@ -17,9 +17,11 @@ class DiseaseSerializer(serializers.ModelSerializer):
   # Populated by get_targets
   targets = serializers.SerializerMethodField()
 
+  children = serializers.SerializerMethodField()
+
   class Meta:
     model = Disease
-    fields = ('id', 'doid', 'name', 'summary', 'novelty', 'targets')
+    fields = ('id', 'doid', 'name', 'summary', 'novelty', 'targets', 'children')
 
   def get_targets(self, obj):
     """
@@ -35,6 +37,18 @@ class DiseaseSerializer(serializers.ModelSerializer):
                      request=self.context['request'])
     else:
       return None
+
+
+  def get_children(self, obj):
+    """
+    Get a URL to retrieve the children of this disease.
+    :param obj:
+    :return:
+    """
+    if 'request' in self.context:
+        return reverse('disease-children',
+                       kwargs={'parent_id': obj.pk},
+                       request=self.context['request'])
 
 
 class TargetSerializer(serializers.Serializer):

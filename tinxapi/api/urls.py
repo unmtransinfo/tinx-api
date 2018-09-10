@@ -13,5 +13,8 @@ urlpatterns = \
         name='target-diseases'),
     url(r'^diseases/(?P<pk>[0-9]+)/targets/$',
         views.DiseaseTargetsView.as_view(),
-        name='disease-targets')
+        name='disease-targets'),
+      url(r'^diseases/(?P<parent_id>[0-9]+)/children/$',
+          views.DiseaseViewSet.as_view({'get' : 'list'}),
+          name='disease-children')
   ] + router.urls

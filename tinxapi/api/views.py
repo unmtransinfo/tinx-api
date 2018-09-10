@@ -9,6 +9,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from rest_framework import mixins
+from rest_framework import filters
 
 from django.http import HttpResponse
 
@@ -22,19 +23,20 @@ class DiseaseViewSet(mixins.ListModelMixin,
                      viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
   serializer_class = DiseaseSerializer
+  filter_backends = (filters.SearchFilter,)
+  search_fields = ('^name',)
 
   def get_queryset(self):
-    parent_id = self.request.query_params.get('parent', None)
-    parent = Disease.objects.filter(id=parent_id).first()
-    if parent_id is None:
-      return Disease.objects.all()
+    if 'parent_id' in self.kwargs:
+        parent_id = self.kwargs['parent_id']
+        parent = Disease.objects.filter(id=parent_id).first()
+        return Disease.objects.extra(tables=['do_parent'],
+                                     where=['do_parent.doid = tinx_disease.doid',
+                                            'do_parent.parent=%s'],
+                                     params=[parent.doid],
+                                     select={'parent_id': 'do_parent.parent'}).all()
     else:
-      return Disease.objects.extra(tables=['do_parent'],
-                                   where=['do_parent.doid = tinx_disease.doid',
-                                          'do_parent.parent=%s'],
-                                   params=[parent.doid],
-                                   select={'parent_id': 'do_parent.parent'}).all()
-
+        return Disease.objects.all()
 
 
 class TargetViewSet(mixins.ListModelMixin,
@@ -51,6 +53,9 @@ class TargetViewSet(mixins.ListModelMixin,
     .all()
 
   serializer_class = TargetSerializer
+  filter_backends = (filters.SearchFilter,)
+  search_fields = ('^protein__sym', '^target__name')
+
 
 # TODO: Get pagination working. Probably needs to become a ListAPIView??
 class TargetDiseasesView(generics.GenericAPIView):
