@@ -60,5 +60,29 @@ class Target(models.Model):
 
 class T2TC(models.Model):
   tcrd_model = True
-  target_id = models.ForeignKey(Target)
-  protein_id = models.ForeignKey(Protein)
+  target = models.ForeignKey(Target, primary_key=True)
+  protein = models.ForeignKey(Protein)
+
+  class Meta:
+    db_table = 't2tc'
+
+class Novelty(models.Model):
+  tcrd_model = True
+  id = models.IntegerField(primary_key=True)
+  protein = models.ForeignKey(Protein)
+  score = models.DecimalField(max_digits=34, decimal_places=16)
+
+  class Meta:
+    db_table = 'tinx_novelty'
+
+
+class Importance(models.Model):
+  tcrd_model = True
+  id = models.IntegerField(primary_key=True)
+  protein = models.ForeignKey(Protein)
+  disease = models.ForeignKey(Disease)
+  score = models.DecimalField(max_digits=34, decimal_places=16)
+
+  class Meta:
+    db_table = 'tinx_importance'
+
