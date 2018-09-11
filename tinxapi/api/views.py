@@ -12,6 +12,7 @@ from rest_framework import mixins
 from rest_framework import filters
 
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
 from models import Disease, Target, T2TC, Importance, Protein
 from serializers import *
@@ -57,7 +58,9 @@ class TargetViewSet(mixins.ListModelMixin,
   search_fields = ('^protein__sym', '^target__name')
 
 
-class TargetDiseasesView(generics.ListAPIView):
+class TargetDiseasesViewSet(mixins.ListModelMixin,
+                            mixins.RetrieveModelMixin,
+                            viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
   serializer_class = TargetDiseaseSerializer
 
@@ -70,8 +73,16 @@ class TargetDiseasesView(generics.ListAPIView):
     return protein._prefetched_objects_cache['importance'].all()
 
 
+  def retrieve(self, request, *args, **kwargs):
+    queryset = self.get_queryset()
+    result = get_object_or_404(queryset, disease__id = kwargs['pk'])
+    serializer = self.serializer_class(result)
+    return Response(serializer.data)
 
-class DiseaseTargetsView(generics.ListAPIView):
+
+class DiseaseTargetsViewSet(mixins.ListModelMixin,
+                            mixins.RetrieveModelMixin,
+                            viewsets.GenericViewSet):
   pagination_class = RestrictedPagination
   serializer_class = DiseaseTargetSerializer
 
@@ -95,3 +106,10 @@ class DiseaseTargetsView(generics.ListAPIView):
                          'target_fam': 'target.fam',
                          'target_famext' : 'target.famext',
                          'target_tdl' : 'target.tdl'})
+
+
+  def retrieve(self, request, *args, **kwargs):
+    queryset = self.get_queryset()
+    result = get_object_or_404(queryset, protein__id = kwargs['pk'])
+    serializer = self.serializer_class(result)
+    return Response(serializer.data)
