@@ -5,7 +5,6 @@ from django.shortcuts import render
 
 # Create your views here.
 
-
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from rest_framework import mixins
@@ -13,9 +12,11 @@ from rest_framework import filters
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from rest_framework_filters.backends import DjangoFilterBackend
 
-from models import Disease, Target, T2TC, Importance, Protein
+from models import *
 from serializers import *
+from filters import *
 from paginators import RestrictedPagination
 
 
@@ -54,8 +55,9 @@ class TargetViewSet(mixins.ListModelMixin,
     .all()
 
   serializer_class = TargetSerializer
-  filter_backends = (filters.SearchFilter,)
+  filter_backends = (filters.SearchFilter, DjangoFilterBackend)
   search_fields = ('^protein__sym', '^target__name')
+  filter_class = TargetFilter
 
 
 class TargetDiseasesViewSet(mixins.ListModelMixin,
@@ -113,3 +115,16 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
     result = get_object_or_404(queryset, protein__id = kwargs['pk'])
     serializer = self.serializer_class(result)
     return Response(serializer.data)
+
+
+class ArticleViewSet(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
+  pagination_class = RestrictedPagination
+  serializer_class = PubmedArticleSerializer
+
+  queryset = PubmedArticle.objects.all()
+
+  filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+  filter_class = PubmedArticleFilter
+  search_fields = ('title',)

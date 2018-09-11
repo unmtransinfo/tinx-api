@@ -86,3 +86,15 @@ class Importance(models.Model):
   class Meta:
     db_table = 'tinx_importance'
 
+
+class PubmedArticle(models.Model):
+  tcrd_model = True
+  id = models.IntegerField(primary_key=True)
+  title  = models.TextField()
+  journal = models.TextField()
+  date = models.CharField(max_length=10)
+  authors = models.TextField()
+  abstract = models.TextField()
+
+  class Meta:
+    db_table = 'pubmed'

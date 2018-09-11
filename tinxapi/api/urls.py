@@ -5,6 +5,7 @@ from django.conf.urls import url, include
 router = DefaultRouter()
 router.register(r'diseases', views.DiseaseViewSet, base_name='disease')
 router.register(r'targets', views.TargetViewSet, base_name='target')
+router.register(r'articles', views.ArticleViewSet, base_name='article')
 
 urlpatterns = \
   [

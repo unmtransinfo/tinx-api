@@ -3,7 +3,7 @@ import collections
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from models import Disease, Target, T2TC, Importance, Protein
+from models import *
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -119,3 +119,8 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     tmp['novelty'] = obj.novelty
     return tmp
 
+
+class PubmedArticleSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = PubmedArticle
+    fields = ('id', 'title', 'journal', 'date', 'authors', 'abstract')
