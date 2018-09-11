@@ -8,10 +8,10 @@ router.register(r'targets', views.TargetViewSet, base_name='target')
 
 urlpatterns = \
   [
-    url(r'^targets/(?P<pk>[0-9]+)/diseases/$',
+    url(r'^targets/(?P<target_id>[0-9]+)/diseases/$',
         views.TargetDiseasesView.as_view(),
         name='target-diseases'),
-    url(r'^diseases/(?P<pk>[0-9]+)/targets/$',
+    url(r'^diseases/(?P<disease_id>[0-9]+)/targets/$',
         views.DiseaseTargetsView.as_view(),
         name='disease-targets'),
       url(r'^diseases/(?P<parent_id>[0-9]+)/children/$',

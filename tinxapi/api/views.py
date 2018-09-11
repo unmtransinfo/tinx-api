@@ -57,37 +57,41 @@ class TargetViewSet(mixins.ListModelMixin,
   search_fields = ('^protein__sym', '^target__name')
 
 
-# TODO: Get pagination working. Probably needs to become a ListAPIView??
-class TargetDiseasesView(generics.GenericAPIView):
+class TargetDiseasesView(generics.ListAPIView):
   pagination_class = RestrictedPagination
-  queryset = Protein.objects.prefetch_related('importance_set').prefetch_related().all()
+  serializer_class = TargetDiseaseSerializer
 
-  def get(self, request, *args, **kwargs):
-    protein = self.get_object()
-    importance = protein._prefetched_objects_cache['importance']
-    serializer = TargetDiseaseSerializer(importance.all(), many=True)
-    return Response(serializer.data)
+  def get_queryset(self):
+    protein = Protein.objects \
+      .prefetch_related('importance_set') \
+      .prefetch_related() \
+      .filter(id = self.kwargs['target_id']) \
+      .first()
+    return protein._prefetched_objects_cache['importance'].all()
 
 
-class DiseaseTargetsView(generics.GenericAPIView):
+
+class DiseaseTargetsView(generics.ListAPIView):
   pagination_class = RestrictedPagination
+  serializer_class = DiseaseTargetSerializer
 
-  queryset = Disease.objects.prefetch_related('importance_set').prefetch_related().all()
 
-  def get(self, request, *args, **kwards):
-    disease = self.get_object()
-    importance = disease._prefetched_objects_cache['importance'] \
-      .prefetch_related('protein')\
-      .extra(tables=['tinx_novelty', 't2tc', 'target'],
-             where=['tinx_novelty.protein_id = tinx_importance.protein_id',
-                    't2tc.protein_id = tinx_importance.protein_id',
-                    'target.id = t2tc.target_id'],
-             select={'novelty': 'tinx_novelty.score',
-                     'target_id': 'target.id',
-                     'target_name': 'target.name',
-                     'target_fam': 'target.fam',
-                     'target_famext' : 'target.famext',
-                     'target_tdl' : 'target.tdl'})
-    serializer = DiseaseTargetSerializer(importance.all(), many=True)
-    return Response(serializer.data)
+  def get_queryset(self):
+      disease = Disease.objects\
+          .prefetch_related('importance_set')\
+          .prefetch_related()\
+          .filter(id = self.kwargs['disease_id'])  \
+          .first()
 
+      return disease._prefetched_objects_cache['importance'] \
+          .prefetch_related('protein') \
+          .extra(tables=['tinx_novelty', 't2tc', 'target'],
+                 where=['tinx_novelty.protein_id = tinx_importance.protein_id',
+                        't2tc.protein_id = tinx_importance.protein_id',
+                        'target.id = t2tc.target_id'],
+                 select={'novelty': 'tinx_novelty.score',
+                         'target_id': 'target.id',
+                         'target_name': 'target.name',
+                         'target_fam': 'target.fam',
+                         'target_famext' : 'target.famext',
+                         'target_tdl' : 'target.tdl'})

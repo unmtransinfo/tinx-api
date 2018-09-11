@@ -33,7 +33,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
     """
     if 'request' in self.context:
       return reverse('disease-targets',
-                     kwargs={'pk': obj.pk},
+                     kwargs={'disease_id': obj.pk},
                      request=self.context['request'])
     else:
       return None
@@ -74,7 +74,7 @@ class TargetSerializer(serializers.Serializer):
     :return: A hyperlink.
     """
     return reverse('target-diseases',
-                   kwargs={'pk': obj.pk},
+                   kwargs={'target_id': obj.pk},
                    request=self.context['request'])
 
 
