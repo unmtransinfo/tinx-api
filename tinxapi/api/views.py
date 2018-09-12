@@ -9,6 +9,7 @@ from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from rest_framework import mixins
 from rest_framework import filters
+from rest_framework.decorators import action
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -23,22 +24,22 @@ from paginators import RestrictedPagination
 class DiseaseViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
                      viewsets.GenericViewSet):
+  queryset =  Disease.objects.all()
   pagination_class = RestrictedPagination
   serializer_class = DiseaseSerializer
   filter_backends = (filters.SearchFilter,)
   search_fields = ('^name',)
 
-  def get_queryset(self):
-    if 'parent_id' in self.kwargs:
-        parent_id = self.kwargs['parent_id']
-        parent = Disease.objects.filter(id=parent_id).first()
-        return Disease.objects.extra(tables=['do_parent'],
+  @action(detail = True)
+  def children(self, request, *args, **kwargs):
+    parent = self.get_object()
+    queryset = Disease.objects.extra(tables=['do_parent'],
                                      where=['do_parent.doid = tinx_disease.doid',
                                             'do_parent.parent=%s'],
                                      params=[parent.doid],
                                      select={'parent_id': 'do_parent.parent'}).all()
-    else:
-        return Disease.objects.all()
+    return Response(self.serializer_class(queryset, many=True).data)
+
 
 
 class TargetViewSet(mixins.ListModelMixin,
@@ -80,6 +81,7 @@ class TargetDiseasesViewSet(mixins.ListModelMixin,
     result = get_object_or_404(queryset, disease__id = kwargs['pk'])
     serializer = self.serializer_class(result)
     return Response(serializer.data)
+
 
 
 class DiseaseTargetsViewSet(mixins.ListModelMixin,
@@ -128,3 +130,21 @@ class ArticleViewSet(mixins.ListModelMixin,
   filter_backends = (filters.SearchFilter, DjangoFilterBackend)
   filter_class = PubmedArticleFilter
   search_fields = ('title',)
+
+  def get_queryset(self):
+    if 'disease_id' in self.kwargs and 'target_id' in self.kwargs:
+      return PubmedArticle.objects\
+        .extra(tables=['tinx_articlerank', 'tinx_importance', 't2tc'],
+               where=['tinx_articlerank.pmid = pubmed.id',
+                      'tinx_importance.id = tinx_articlerank.importance_id',
+                      't2tc.protein_id = tinx_importance.protein_id',
+                      'tinx_importance.disease_id = %s',
+                      't2tc.target_id = %s'],
+               params = [self.kwargs['disease_id'], self.kwargs['target_id']])\
+        .all()
+    else:
+      return PubmedArticle.objects.all()
+
+
+
+

@@ -47,7 +47,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
     """
     if 'request' in self.context:
         return reverse('disease-children',
-                       kwargs={'parent_id': obj.pk},
+                       kwargs={'pk': obj.pk},
                        request=self.context['request'])
 
 
@@ -84,11 +84,18 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
   """
 
   disease = DiseaseSerializer()
+  articles = serializers.SerializerMethodField()
   importance = serializers.DecimalField(max_digits=34, decimal_places=16, source='score')
 
   class Meta:
     model = Importance
-    fields = ('disease', 'importance',)
+    fields = ('disease', 'articles', 'importance',)
+
+  def get_articles(self, obj):
+    if 'request' in self.context:
+      return reverse('target-disease-articles',
+                     kwargs={'disease_id': obj.disease_id, 'target_id' : obj.protein_id },
+                     request=self.context['request'])
 
 
 class DiseaseTargetSerializer(serializers.ModelSerializer):
@@ -97,11 +104,13 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
   """
 
   target = serializers.SerializerMethodField()
+  articles = serializers.SerializerMethodField()
   importance = serializers.DecimalField(max_digits=34, decimal_places=16, source='score')
+
 
   class Meta:
     model = Importance
-    fields = ('protein', 'target', 'importance')
+    fields = ('target', 'articles', 'importance')
 
   def get_target(self, obj):
     """
@@ -118,6 +127,12 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     tmp['tdl'] = obj.target_tdl
     tmp['novelty'] = obj.novelty
     return tmp
+
+  def get_articles(self, obj):
+    if 'request' in self.context:
+      return reverse('disease-target-articles',
+                     kwargs={'disease_id': obj.disease_id, 'target_id' : obj.protein_id },
+                     request=self.context['request'])
 
 
 class PubmedArticleSerializer(serializers.ModelSerializer):

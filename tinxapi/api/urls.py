@@ -7,6 +7,7 @@ router.register(r'diseases', views.DiseaseViewSet, base_name='disease')
 router.register(r'targets', views.TargetViewSet, base_name='target')
 router.register(r'articles', views.ArticleViewSet, base_name='article')
 
+# TODO: Can we use ViewSet actions to clean up these urlpatterns?
 urlpatterns = \
   [
     # GET /targets/:target_id/diseases
@@ -29,8 +30,12 @@ urlpatterns = \
         views.DiseaseTargetsViewSet.as_view({'get' : 'retrieve'}),
         name='disease-targets'),
 
-    # GET /diseases/:disease_id/children
-    url(r'^diseases/(?P<parent_id>[0-9]+)/children/$',
-        views.DiseaseViewSet.as_view({'get' : 'list'}),
-        name='disease-children')
+    url(r'^diseases/(?P<disease_id>[0-9]+)/targets/(?P<target_id>[0-9]+)/articles$',
+        views.ArticleViewSet.as_view({'get' : 'list'}),
+        name='disease-target-articles'),
+
+    url(r'^targets/(?P<target_id>[0-9]+)/diseases/(?P<disease_id>[0-9]+)/articles$',
+        views.ArticleViewSet.as_view({'get' : 'list'}),
+        name='target-disease-articles'),
+
   ] + router.urls
