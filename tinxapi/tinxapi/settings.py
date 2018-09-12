@@ -83,9 +83,10 @@ DATABASES = {
     },
     'tcrd': {
         'ENGINE': 'django.db.backends.mysql',
+        'HOST': '172.17.0.1',
         'NAME': 'tcrd',
-        'USER':   'tcrd_read_only',
-        'PASSWORD': 'tcrd_read_only'
+        'USER':   'tcrd',
+        'PASSWORD': ''
     }
 }
 
