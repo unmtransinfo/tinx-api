@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import secrets
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -83,10 +84,10 @@ DATABASES = {
     },
     'tcrd': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '172.17.0.1',
+        'HOST': secrets.tcrd['host'],
         'NAME': 'tcrd',
-        'USER':   'tcrd',
-        'PASSWORD': ''
+        'USER':   secrets.tcrd['user'],
+        'PASSWORD': secrets.tcrd['password']
     }
 }
 

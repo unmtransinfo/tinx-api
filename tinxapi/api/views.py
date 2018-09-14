@@ -20,10 +20,19 @@ from serializers import *
 from filters import *
 from paginators import RestrictedPagination
 
-
 class DiseaseViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
                      viewsets.GenericViewSet):
+  """
+  list:
+  Browse all diseases in the database.
+
+  retrieve:
+  Get information about a specific disease.
+
+  children:
+  Retrieve a list of this disease's children.
+  """
   queryset =  Disease.objects.all()
   pagination_class = RestrictedPagination
   serializer_class = DiseaseSerializer
@@ -45,6 +54,13 @@ class DiseaseViewSet(mixins.ListModelMixin,
 class TargetViewSet(mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
+  """
+  list:
+  Browse all targets in the database.
+
+  retrieve:
+  Get information about a specific target.
+  """
   pagination_class = RestrictedPagination
 
   queryset = T2TC.objects\
@@ -64,6 +80,13 @@ class TargetViewSet(mixins.ListModelMixin,
 class TargetDiseasesViewSet(mixins.ListModelMixin,
                             mixins.RetrieveModelMixin,
                             viewsets.GenericViewSet):
+  """
+  list:
+  View the diseases associated with a specific target.
+
+  retrieve:
+  Retrieve information about a specific target-disease association.
+  """
   pagination_class = RestrictedPagination
   serializer_class = TargetDiseaseSerializer
 
@@ -87,6 +110,13 @@ class TargetDiseasesViewSet(mixins.ListModelMixin,
 class DiseaseTargetsViewSet(mixins.ListModelMixin,
                             mixins.RetrieveModelMixin,
                             viewsets.GenericViewSet):
+  """
+  list:
+  View targets associated with a specific disease.
+
+  retrieve:
+  Retrieve information about a specific disease-target association.
+  """
   pagination_class = RestrictedPagination
   serializer_class = DiseaseTargetSerializer
 
@@ -122,6 +152,13 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
 class ArticleViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
                      viewsets.GenericViewSet):
+  """
+  list:
+  Browse and search all Pubmed articles in the database.
+
+  retrieve:
+  Retrieve information about a specific Pubmed article.
+  """
   pagination_class = RestrictedPagination
   serializer_class = PubmedArticleSerializer
 

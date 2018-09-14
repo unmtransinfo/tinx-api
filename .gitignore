@@ -5,3 +5,7 @@ secrets.py
 *~
 *.pyc
 
+tcrd_subset.sql
+tcrd_subset.sql.gz
+
+
