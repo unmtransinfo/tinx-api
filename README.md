@@ -11,12 +11,36 @@
 8. `python manage.py migrate`
 9. `python manage.py runserver`
 
+### Database configuration
+
+```
+mysql> CREATE USER 'tcrd_read_only'@'%' IDENTIFIED BY 'tcrd_read_only';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE DATABASE tcrd;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> GRANT SELECT ON tcrd.* TO 'tcrd_read_only'@'%';
+Query OK, 0 rows affected (0.00 sec)
+
+```
+
+On a machine with the full tcrd database, you can run the script `export_tcrd_subset.sh`. This creates a file called `tcrd_subset.sql.gz` that has all of the tcrd tables needed by the TIN-X REST API.
+
+Upload the file `tcrd_subset.sql.gz` to the same folder where you cloned `tinxapi` on the local machine / server. Then execute the following commands: 
+
+```
+$ gunzip tcrd_subset.sql.gz
+$ mysql -u root -p tcrd < import_tcrd_subset.sql
+```
+
 ### Launch using Docker Version
 
 1. Install docker `sudo apt install docker.io`
 2. Build the container `./build.sh`
-3. Run the container `./run.sh`
-4. You can use your IDE like normal and changes will be reflected without rebuilding
+3. Create `secrets.py` by copying `secrets.example.py` and then updating details.
+4. Run the container `./run.sh`
+5. You can use your IDE like normal and changes will be reflected without rebuilding
 
 
 Navigate to http://localhost:8000
