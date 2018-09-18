@@ -23,6 +23,19 @@ Navigate to http://localhost:8000
 
 
 
+## Troubleshooting
+
+### Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock
+
+```
+$ sudo usermod -a -G docker $USER
+$ exit
+```
+
+Then log back in again.
+
+
+https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/
 
 
 
