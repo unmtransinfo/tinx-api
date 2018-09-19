@@ -69,4 +69,10 @@ https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-tryin
 3. Restart MySQL: `sudo service mysql restart`
 
 
+## Deployments
+
+### Confiure container to always run
+
+1. Configure docker to run on startup: `sudo systemctl enable docker`
+2. Configure tinx container to always run: `docker run -dit --restart unless-stopped -v $PWD:/tinx -p 8000:8000 -ti tinx`
 
