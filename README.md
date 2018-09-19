@@ -66,6 +66,7 @@ https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-tryin
 
 1. Edit your mysql configuration: `sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf`
 2. Change `bind-address` to `bind-address: 0.0.0.0`
+3. Restart MySQL: `sudo service mysql restart`
 
 
 
