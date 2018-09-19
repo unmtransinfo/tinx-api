@@ -62,5 +62,10 @@ Then log back in again.
 https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/
 
 
+### OperationalError: Can't connect to MySQL server on '172.17.0.1' (111)
+
+1. Edit your mysql configuration: `sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf`
+2. Change `bind-address` to `bind-address: 0.0.0.0`
+
 
 
