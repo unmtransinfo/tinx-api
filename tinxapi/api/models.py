@@ -16,7 +16,7 @@ class Disease(models.Model):
   score = models.DecimalField(max_digits=34, decimal_places=16)
 
   class Meta:
-    ordering = ('id',)
+    ordering = ('name',)
     db_table = u'tinx_disease'
 
   def save(self, *args, **kwargs):
