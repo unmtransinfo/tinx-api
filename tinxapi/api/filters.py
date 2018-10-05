@@ -30,3 +30,15 @@ class TargetFilter(django_filters.FilterSet):
     model = models.T2TC
     fields = ['name', 'uniprot', 'sym', 'fam', 'famext', 'tdl']
 
+
+class DiseaseFilter(django_filters.FilterSet):
+  """
+  Filters for the /diseases endpoing
+  """
+  doid = django_filters.CharFilter(name='doid', lookup_expr='iexact')
+
+  class Meta:
+    model = models.Disease
+    fields = ['doid']
+
+

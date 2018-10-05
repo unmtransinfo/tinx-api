@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from models import *
+import urllib
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -19,9 +20,11 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
   children = serializers.SerializerMethodField()
 
+  parent = serializers.SerializerMethodField()
+
   class Meta:
     model = Disease
-    fields = ('id', 'doid', 'name', 'summary', 'novelty', 'targets', 'children')
+    fields = ('id', 'doid', 'name', 'summary', 'novelty', 'targets', 'children', 'parent')
 
   def get_targets(self, obj):
     """
@@ -31,12 +34,21 @@ class DiseaseSerializer(serializers.ModelSerializer):
     :param obj: The object being serialized.
     :return: A hyperlink.
     """
-    if 'request' in self.context:
-      return reverse('disease-targets',
-                     kwargs={'disease_id': obj.pk},
-                     request=self.context['request'])
-    else:
-      return None
+    return reverse('disease-targets',
+                   kwargs={'disease_id': obj.pk},
+                   request=self.context['request'])
+
+  def get_parent(self, obj):
+    """
+    Populates the `targets` field above (by name) with a hyperlink to the
+    target's diseases (e.g. /diseases/1/targets)
+
+    :param obj: The object being serialized.
+    :return: A hyperlink.
+    """
+    return reverse('disease-parent',
+                   kwargs={'pk': obj.pk},
+                   request=self.context['request'])
 
 
   def get_children(self, obj):

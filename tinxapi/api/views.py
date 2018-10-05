@@ -33,10 +33,11 @@ class DiseaseViewSet(mixins.ListModelMixin,
   children:
   Retrieve a list of this disease's children.
   """
-  queryset =  Disease.objects.all()
+  queryset = Disease.objects.all()
   pagination_class = RestrictedPagination
   serializer_class = DiseaseSerializer
-  filter_backends = (filters.SearchFilter,)
+  filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+  filter_class = DiseaseFilter
   search_fields = ('^name',)
 
   @action(detail = True)
@@ -47,7 +48,19 @@ class DiseaseViewSet(mixins.ListModelMixin,
                                             'do_parent.parent=%s'],
                                      params=[parent.doid],
                                      select={'parent_id': 'do_parent.parent'}).all()
-    return Response(self.serializer_class(queryset, many=True).data)
+    return Response(self.serializer_class(queryset, many=True, context={'request': request}).data)
+
+  @action(detail = True)
+  def parent(self, request, *args, **kwargs):
+    child = self.get_object()
+    queryset = Disease.objects.extra(tables=['do_parent'],
+                                     where=['do_parent.parent = tinx_disease.doid',
+                                            'do_parent.doid=%s'],
+                                     params=[child.doid],
+                                     select={'parent_id': 'do_parent.parent'}).first()
+    return Response(self.serializer_class(queryset, many=False, context={'request': request}).data)
+
+
 
 
 
