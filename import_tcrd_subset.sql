@@ -13,3 +13,5 @@ SET foreign_key_checks = 0;
 source tcrd_subset.sql
 
 SET foreign_key_checks = 1;
+
+source add_counts.sql

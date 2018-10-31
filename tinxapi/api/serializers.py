@@ -22,6 +22,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
   parent = serializers.SerializerMethodField()
 
+
   class Meta:
     model = Disease
     fields = ('id', 'doid', 'name', 'summary', 'novelty', 'targets', 'children', 'parent')
@@ -50,7 +51,6 @@ class DiseaseSerializer(serializers.ModelSerializer):
                    kwargs={'pk': obj.pk},
                    request=self.context['request'])
 
-
   def get_children(self, obj):
     """
     Get a URL to retrieve the children of this disease.
@@ -61,6 +61,20 @@ class DiseaseSerializer(serializers.ModelSerializer):
         return reverse('disease-children',
                        kwargs={'pk': obj.pk},
                        request=self.context['request'])
+
+
+class DiseaseWithMetadataSerializer(DiseaseSerializer):
+  """
+  Extends DiseaseSerializer to add field from the metadata table, specifically:
+  num_important_targets
+  """
+
+  num_important_targets = serializers.IntegerField()
+
+  class Meta:
+    model = Disease
+    fields = ('id', 'doid', 'name', 'summary', 'num_important_targets', 'novelty', 'targets', 'children', 'parent')
+
 
 
 class TargetSerializer(serializers.Serializer):
@@ -74,6 +88,7 @@ class TargetSerializer(serializers.Serializer):
   fam = serializers.CharField(source='target.fam')
   famext = serializers.CharField(source='target.famext')
   tdl = serializers.CharField(source='target.tdl')
+  num_important_diseases = serializers.IntegerField()
   novelty = serializers.DecimalField(max_digits=34, decimal_places=16)
   diseases = serializers.SerializerMethodField()
 

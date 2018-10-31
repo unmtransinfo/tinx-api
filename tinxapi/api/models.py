@@ -22,6 +22,15 @@ class Disease(models.Model):
   def save(self, *args, **kwargs):
     raise Exception("This model is read-only")
 
+
+class DiseaseMetadata(models.Model):
+  tcrd_model = True
+
+  id = models.IntegerField(primary_key=True)
+  disease = models.ForeignKey(Disease)
+  num_important_targets = models.IntegerField
+
+
 class Protein(models.Model):
   tcrd_model = True
 
@@ -40,6 +49,14 @@ class Protein(models.Model):
   class Meta:
     ordering = ('id', )
     db_table = 'protein'
+
+
+class ProteinMetadata(models.Model):
+  tcrd_model = True
+
+  id = models.IntegerField(primary_key=True)
+  protein = models.ForeignKey(Protein)
+  num_important_diseases = models.IntegerField
 
 
 class Target(models.Model):
@@ -65,6 +82,7 @@ class T2TC(models.Model):
 
   class Meta:
     db_table = 't2tc'
+
 
 class Novelty(models.Model):
   tcrd_model = True

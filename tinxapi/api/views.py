@@ -33,9 +33,14 @@ class DiseaseViewSet(mixins.ListModelMixin,
   children:
   Retrieve a list of this disease's children.
   """
-  queryset = Disease.objects.all()
+  base_query = Disease.objects.extra(
+    tables=['tinx_disease_metadata'],
+    where=['tinx_disease_metadata.tinx_disease_id = tinx_disease.id'],
+    select={'num_important_targets' : 'tinx_disease_metadata.num_important_targets'}
+  )
+  queryset = base_query.all()
   pagination_class = RestrictedPagination
-  serializer_class = DiseaseSerializer
+  serializer_class = DiseaseWithMetadataSerializer
   filter_backends = (filters.SearchFilter, DjangoFilterBackend)
   filter_class = DiseaseFilter
   search_fields = ('^name',)
@@ -43,7 +48,7 @@ class DiseaseViewSet(mixins.ListModelMixin,
   @action(detail = True)
   def children(self, request, *args, **kwargs):
     parent = self.get_object()
-    queryset = Disease.objects.extra(tables=['do_parent'],
+    queryset = self.base_query.extra(tables=['do_parent'],
                                      where=['do_parent.doid = tinx_disease.doid',
                                             'do_parent.parent=%s'],
                                      params=[parent.doid],
@@ -53,7 +58,7 @@ class DiseaseViewSet(mixins.ListModelMixin,
   @action(detail = True)
   def parent(self, request, *args, **kwargs):
     child = self.get_object()
-    queryset = Disease.objects.extra(tables=['do_parent'],
+    queryset = self.base_query.extra(tables=['do_parent'],
                                      where=['do_parent.parent = tinx_disease.doid',
                                             'do_parent.doid=%s'],
                                      params=[child.doid],
@@ -79,9 +84,11 @@ class TargetViewSet(mixins.ListModelMixin,
   queryset = T2TC.objects\
     .select_related('target')\
     .select_related('protein')\
-    .extra(tables=['tinx_novelty'],
-           where=['tinx_novelty.protein_id = t2tc.protein_id'],
-           select={'novelty': 'tinx_novelty.score'})\
+    .extra(tables=['tinx_novelty', 'protein_metadata'],
+           where=['tinx_novelty.protein_id = t2tc.protein_id',
+                  'protein_metadata.protein_id = t2tc.protein_id'],
+           select={'novelty' : 'tinx_novelty.score',
+                   'num_important_diseases' : 'protein_metadata.num_important_diseases'})\
     .all()
 
   serializer_class = TargetSerializer
