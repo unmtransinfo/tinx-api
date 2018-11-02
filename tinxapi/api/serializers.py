@@ -154,6 +154,8 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     tmp['famext'] = obj.target_famext
     tmp['tdl'] = obj.target_tdl
     tmp['novelty'] = obj.novelty
+    tmp['sym'] = obj.protein.sym
+    tmp['dtoid'] = obj.protein.dtoid
     return tmp
 
   def get_articles(self, obj):
