@@ -14,4 +14,4 @@ source tcrd_subset.sql
 
 SET foreign_key_checks = 1;
 
-source add_counts.sql
+source add_metadata.sql

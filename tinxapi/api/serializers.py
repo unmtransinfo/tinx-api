@@ -133,11 +133,12 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
   target = serializers.SerializerMethodField()
   articles = serializers.SerializerMethodField()
   importance = serializers.DecimalField(max_digits=34, decimal_places=16, source='score')
+  nds_rank = serializers.IntegerField()
 
 
   class Meta:
     model = Importance
-    fields = ('target', 'articles', 'importance')
+    fields = ('target', 'articles', 'nds_rank', 'importance')
 
   def get_target(self, obj):
     """

@@ -104,6 +104,12 @@ class Importance(models.Model):
   class Meta:
     db_table = 'tinx_importance'
 
+class NDSRank(models.Model):
+  tcrd_model = True
+  id = models.IntegerField(primary_key=True)
+  importance = models.ForeignKey(Importance)
+  rank = models.IntegerField
+
 
 class PubmedArticle(models.Model):
   tcrd_model = True

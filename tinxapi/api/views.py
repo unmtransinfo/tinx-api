@@ -150,16 +150,19 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
 
       return disease._prefetched_objects_cache['importance'] \
           .prefetch_related('protein') \
-          .extra(tables=['tinx_novelty', 't2tc', 'target'],
+          .extra(tables=['tinx_novelty', 't2tc', 'target', 'tinx_nds_rank'],
                  where=['tinx_novelty.protein_id = tinx_importance.protein_id',
                         't2tc.protein_id = tinx_importance.protein_id',
-                        'target.id = t2tc.target_id'],
+                        'target.id = t2tc.target_id',
+                        'tinx_nds_rank.tinx_importance_id = tinx_importance.id'],
                  select={'novelty': 'tinx_novelty.score',
                          'target_id': 'target.id',
                          'target_name': 'target.name',
                          'target_fam': 'target.fam',
                          'target_famext' : 'target.famext',
-                         'target_tdl' : 'target.tdl'})
+                         'target_tdl' : 'target.tdl',
+                         'nds_rank' : 'tinx_nds_rank.rank'})\
+          .order_by('nds_rank')
 
 
   def retrieve(self, request, *args, **kwargs):
