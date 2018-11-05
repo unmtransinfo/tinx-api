@@ -151,7 +151,7 @@ def get_datapoints_for_disease(disease_id):
     FROM tinx_importance
     JOIN tinx_novelty ON tinx_importance.protein_id = tinx_novelty.protein_id
     WHERE tinx_importance.disease_id = %s
-    ORDER BY importance DESC""", disease_id)
+    ORDER BY importance DESC""", (disease_id, ))
   return cursor.fetchall()
 
 
