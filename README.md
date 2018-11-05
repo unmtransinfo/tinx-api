@@ -3,6 +3,8 @@
 
 ### Database configuration
 
+#### 1. Create an empty database and a read-only database user:
+
 ```
 mysql> CREATE USER 'tcrd_read_only'@'%' IDENTIFIED BY 'tcrd_read_only';
 Query OK, 0 rows affected (0.00 sec)
@@ -15,16 +17,22 @@ Query OK, 0 rows affected (0.00 sec)
 
 ```
 
-On a machine with the full tcrd database, you can run the script `export_tcrd_subset.sh`. This creates a file called `tcrd_subset.sql.gz` that has all of the tcrd tables needed by the TIN-X REST API.
+####  2. (Skip this step if you have been provided a copy of the database to load.) On a machine with the full tcrd database, you can run the script `export_tcrd_subset.sh`. This creates a file called `tcrd_subset.sql.gz` that has all of the tcrd tables needed by the TIN-X REST API.
 
-Upload the file `tcrd_subset.sql.gz` to the same folder where you cloned `tinxapi` on the local machine / server. Then execute the following commands: 
+#### 3. Upload the file `tcrd_subset.sql.gz` to the same folder where you cloned `tinxapi` on the local machine / server. Then execute the following commands: 
 
 ```
 $ gunzip tcrd_subset.sql.gz
 $ mysql -u root -p tcrd < import_tcrd_subset.sql
 ```
 
-### Launch using Docker Version
+####  4. Run the script `compute_nds_rank.py`:
+
+```
+$ python compute_nds_rank.py
+```
+
+### Option 1: Launch using Docker Version (recommended)
 
 1. Install docker `sudo apt install docker.io`
 2. Build the container `./build.sh`
@@ -36,7 +44,7 @@ $ mysql -u root -p tcrd < import_tcrd_subset.sql
 Navigate to http://localhost:8000
 
 
-### Local Install (without Docker)
+### Option 2: Local Install (without Docker)
 1. `git clone git@bitbucket.org:iterative-consulting/tinxapi.git`
 2. `cd tinxapi`
 3. `sudo apt-get install virtualenv libmysqlclient-dev python-dev`
