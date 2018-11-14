@@ -41,4 +41,29 @@ class DiseaseFilter(django_filters.FilterSet):
     model = models.Disease
     fields = ['doid']
 
+class DTOFilter(django_filters.FilterSet):
+  """
+  Filters for the /dto endpoint.
+  """
+  has_parent = django_filters.BooleanFilter(field_name="parent", method="filter_notnull")
+
+
+  def filter_notnull(self, queryset, name, value):
+    """
+    A "not null" filter that returns rows for which the specified field is NULL
+    if value is false, and rows for which the specificed field is NOT NULL if
+    value is true.
+
+    :param queryset: The queryset to filter.
+    :param name: The name of the field to filter on.
+    :param value: True (return rows where the field is not null) or false (where field is null).
+    :return: A filtered queryset.
+    """
+    lookup = '__'.join([name, 'isnull'])
+    return queryset.filter(**{lookup: not value})
+
+
+  class Meta:
+    model = models.DTO
+    fields = ['has_parent']
 

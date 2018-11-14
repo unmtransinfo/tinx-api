@@ -6,6 +6,9 @@ from rest_framework.reverse import reverse
 from models import *
 import urllib
 
+import views
+
+
 
 class DiseaseSerializer(serializers.ModelSerializer):
   """
@@ -169,3 +172,36 @@ class PubmedArticleSerializer(serializers.ModelSerializer):
   class Meta:
     model = PubmedArticle
     fields = ('id', 'title', 'journal', 'date', 'authors', 'abstract')
+
+class DTOSerializer(serializers.ModelSerializer):
+  target = serializers.SerializerMethodField()
+  parent = serializers.SerializerMethodField()
+  children = serializers.SerializerMethodField()
+
+  class Meta:
+    model = DTO
+    fields = ('id', 'name', 'target', 'parent', 'children')
+
+  def get_target(self, obj):
+    # TODO: This is not very efficient.
+    protein = obj._prefetched_objects_cache['protein'].first()
+
+    if protein is None:
+      return None
+    else:
+      queryset = views.TargetViewSet().get_queryset().filter(protein_id = protein.id)
+      return TargetSerializer(queryset, many=True, context=self.context).data
+
+  def get_parent(self, obj):
+    if obj.parent is None:
+      return None
+    else:
+      return reverse('dto-detail',
+                     kwargs={'pk': obj.parent},
+                     request = self.context['request'])
+
+  def get_children(self,obj):
+    return reverse('dto-children',
+                   kwargs={'pk': obj.id },
+                   request = self.context['request'])
+

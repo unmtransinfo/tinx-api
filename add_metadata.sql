@@ -50,4 +50,7 @@ CREATE TABLE IF NOT EXISTS tinx_nds_rank (
   FOREIGN KEY (tinx_importance_id) REFERENCES tinx_importance (id)
 );
 
+
+ALTER TABLE protein ADD CONSTRAINT FOREIGN KEY (dtoid) REFERENCES dto (id);
+
 COMMIT;

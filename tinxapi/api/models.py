@@ -31,6 +31,18 @@ class DiseaseMetadata(models.Model):
   num_important_targets = models.IntegerField
 
 
+class DTO(models.Model):
+  tcrd_model = True
+
+  id = models.CharField(max_length=255, primary_key=True)
+  name = models.TextField()
+  parent = models.CharField(max_length=255) # Actually a self-referential foreign key.
+
+
+  class Meta:
+    db_table = u'dto'
+
+
 class Protein(models.Model):
   tcrd_model = True
 
@@ -42,9 +54,7 @@ class Protein(models.Model):
   geneid = models.IntegerField()
   sym = models.CharField(max_length=20)
   family = models.CharField(max_length=255)
-
-  # TODO: This will need to become a foreign key!
-  dtoid = models.CharField(max_length=13)
+  dtoid = models.ForeignKey(DTO, db_column='dtoid')
 
   class Meta:
     ordering = ('id', )
@@ -122,3 +132,4 @@ class PubmedArticle(models.Model):
 
   class Meta:
     db_table = 'pubmed'
+

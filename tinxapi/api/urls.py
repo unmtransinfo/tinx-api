@@ -26,6 +26,7 @@ router = DocumentedRouter()
 router.register(r'diseases', views.DiseaseViewSet, base_name='disease')
 router.register(r'targets', views.TargetViewSet, base_name='target')
 router.register(r'articles', views.ArticleViewSet, base_name='article')
+router.register(r'dto', views.DTOViewSet, base_name='dto')
 
 # TODO: Can we use ViewSet actions to clean up these urlpatterns?
 urlpatterns = \

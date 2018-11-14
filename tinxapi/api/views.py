@@ -206,5 +206,33 @@ class ArticleViewSet(mixins.ListModelMixin,
       return PubmedArticle.objects.all()
 
 
+class DTOViewSet(mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 viewsets.GenericViewSet):
+  """
+  list:
+  Browse and search all DTO entities in our database.
 
+  retrieve:
+  Retrieve information about a specific DTO entity,
+
+  children:
+  Retrieve the list of children for a given DTO entity.
+  """
+  pagination_class = RestrictedPagination
+  serializer_class = DTOSerializer
+  queryset = DTO.objects.prefetch_related('protein_set').all()
+
+  filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+  filter_class = DTOFilter
+  search_fields = ('name',)
+
+
+  @action(detail = True)
+  def children(self, request, *args, **kwargs):
+    parent = self.get_object()
+    queryset = self.get_queryset().filter(parent=parent.id)
+    return Response(
+      self.serializer_class(queryset, many=True, context={'request': request}).data
+    )
 
