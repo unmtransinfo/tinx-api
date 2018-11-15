@@ -54,7 +54,7 @@ class Protein(models.Model):
   geneid = models.IntegerField()
   sym = models.CharField(max_length=20)
   family = models.CharField(max_length=255)
-  dtoid = models.ForeignKey(DTO, db_column='dtoid')
+  dto = models.ForeignKey(DTO, db_column='dtoid')
 
   class Meta:
     ordering = ('id', )

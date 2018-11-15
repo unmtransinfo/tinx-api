@@ -140,6 +140,10 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
   pagination_class = RestrictedPagination
   serializer_class = DiseaseTargetSerializer
 
+  filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+  search_fields = ('^protein__sym', '^target__name')
+  filter_class = DiseaseTargetFilter
+
 
   def get_queryset(self):
       disease = Disease.objects\

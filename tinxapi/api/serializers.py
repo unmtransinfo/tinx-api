@@ -91,6 +91,7 @@ class TargetSerializer(serializers.Serializer):
   fam = serializers.CharField(source='target.fam')
   famext = serializers.CharField(source='target.famext')
   tdl = serializers.CharField(source='target.tdl')
+  dtoid = serializers.CharField(source='protein.dto.id')
   num_important_diseases = serializers.IntegerField()
   novelty = serializers.DecimalField(max_digits=34, decimal_places=16)
   diseases = serializers.SerializerMethodField()
@@ -158,7 +159,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     tmp['tdl'] = obj.target_tdl
     tmp['novelty'] = obj.novelty
     tmp['sym'] = obj.protein.sym
-    tmp['dtoid'] = obj.protein.dtoid
+    tmp['dtoid'] = obj.protein.dto.id if hasattr(obj.protein, 'dto') else None
     return tmp
 
   def get_articles(self, obj):
