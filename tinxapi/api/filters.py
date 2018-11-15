@@ -25,10 +25,14 @@ class TargetFilter(django_filters.FilterSet):
   fam = django_filters.CharFilter(name='target__fam', lookup_expr='icontains')
   famext = django_filters.CharFilter(name='target__famext', lookup_expr='icontains')
   tdl = django_filters.CharFilter(name='target__tdl', lookup_expr='iexact')
+  in_dto = django_filters.BooleanFilter(field_name="protein__dto", method="filter_in_dto")
 
   class Meta:
     model = models.T2TC
-    fields = ['name', 'uniprot', 'sym', 'fam', 'famext', 'tdl']
+    fields = ['name', 'uniprot', 'sym', 'fam', 'famext', 'tdl', 'in_dto']
+
+  def filter_in_dto(self, queryset, name, value):
+    return queryset.filter(protein__dto__isnull = not value)
 
 class DiseaseTargetFilter(django_filters.FilterSet):
   """
