@@ -28,7 +28,8 @@ class DiseaseMetadata(models.Model):
 
   id = models.IntegerField(primary_key=True)
   disease = models.ForeignKey(Disease)
-  num_important_targets = models.IntegerField
+  num_important_targets = models.IntegerField()
+  category = models.TextField()
 
 
 class DTO(models.Model):

@@ -36,7 +36,8 @@ class DiseaseViewSet(mixins.ListModelMixin,
   base_query = Disease.objects.extra(
     tables=['tinx_disease_metadata'],
     where=['tinx_disease_metadata.tinx_disease_id = tinx_disease.id'],
-    select={'num_important_targets' : 'tinx_disease_metadata.num_important_targets'}
+    select={'num_important_targets' : 'tinx_disease_metadata.num_important_targets',
+            'category' : 'tinx_disease_metadata.category' }
   )
   queryset = base_query.all()
   pagination_class = RestrictedPagination
@@ -116,7 +117,13 @@ class TargetDiseasesViewSet(mixins.ListModelMixin,
       .prefetch_related() \
       .filter(id = self.kwargs['target_id']) \
       .first()
-    return protein._prefetched_objects_cache['importance'].all()
+    return protein._prefetched_objects_cache['importance'] \
+      .extra( tables=['tinx_disease_metadata'],
+              where=['tinx_disease_metadata.tinx_disease_id = tinx_importance.disease_id'],
+              select={'num_important_targets' : 'tinx_disease_metadata.num_important_targets',
+                      'category' : 'tinx_disease_metadata.category' }
+              ) \
+      .all()
 
 
   def retrieve(self, request, *args, **kwargs):

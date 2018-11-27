@@ -15,3 +15,5 @@ source tcrd_subset.sql
 SET foreign_key_checks = 1;
 
 source add_metadata.sql
+
+source create_tinx_disease_ancestors.sql

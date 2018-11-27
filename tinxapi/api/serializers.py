@@ -74,9 +74,11 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
 
   num_important_targets = serializers.IntegerField()
 
+  category = serializers.CharField()
+
   class Meta:
     model = Disease
-    fields = ('id', 'doid', 'name', 'summary', 'num_important_targets', 'novelty', 'targets', 'children', 'parent')
+    fields = ('id', 'doid', 'name', 'category', 'summary', 'num_important_targets', 'novelty', 'targets', 'children', 'parent')
 
 
 
@@ -113,20 +115,37 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
   """
   Serializer for the /target/:id/diseases endpoint
   """
-
-  disease = DiseaseSerializer()
+  disease = serializers.SerializerMethodField()
   articles = serializers.SerializerMethodField()
   importance = serializers.DecimalField(max_digits=34, decimal_places=16, source='score')
+  category = serializers.CharField()
 
   class Meta:
     model = Importance
-    fields = ('disease', 'articles', 'importance',)
+    fields = ('disease', 'articles', 'importance', 'category',)
 
   def get_articles(self, obj):
     if 'request' in self.context:
       return reverse('target-disease-articles',
                      kwargs={'disease_id': obj.disease_id, 'target_id' : obj.protein_id },
                      request=self.context['request'])
+
+  def get_disease(self, obj):
+    """
+    Serializes the disease property of this Target-Disease association. The
+    Disease model does not have all properties that are necessary to use the
+    DiseaseWithMetadataSerializer. Instead, these properties (such as category
+    and num_important_targets) are retrieved as part of the base query (they
+    are properties of obj instead of obj.disease). This function moves those
+    properties into obj.disease and then serializes it.
+
+    function
+    :param obj:
+    :return:
+    """
+    obj.disease.category = obj.category
+    obj.disease.num_important_targets = obj.num_important_targets
+    return DiseaseWithMetadataSerializer(obj.disease, many=False, context=self.context).data
 
 
 class DiseaseTargetSerializer(serializers.ModelSerializer):
