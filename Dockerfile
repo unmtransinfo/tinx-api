@@ -1,10 +1,15 @@
-FROM python:2.7.8
+FROM python:2.7.17-buster
 ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /tinx
 
 RUN apt-get -y update
-RUN apt-get install -y python python-pip python-dev libmysqlclient-dev virtualenv
+RUN apt-get install -y \
+	python \ 
+	python-pip \ 
+	python-dev \
+	default-libmysqlclient-dev \
+	virtualenv
 
 COPY cloud-requirements.txt /tinx/cloud-requirements.txt
 
