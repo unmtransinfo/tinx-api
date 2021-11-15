@@ -1,4 +1,4 @@
-Django==1.11.15
+Django==1.11.17
 django-filter==1.1.0
 djangorestframework==3.8.2
 djangorestframework-filters==0.10.2

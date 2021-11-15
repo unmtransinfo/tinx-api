@@ -1,1 +1,1 @@
-docker build . -t tinx
+docker build --no-cache . -t tinx

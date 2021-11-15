@@ -15,10 +15,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from models import *
-from serializers import *
-from filters import *
-from paginators import RestrictedPagination
+from api.models import *
+from api.serializers import *
+from api.filters import *
+from api.paginators import RestrictedPagination
 
 class DiseaseViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,

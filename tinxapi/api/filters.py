@@ -1,5 +1,5 @@
 import django_filters
-import models
+from api import models
 
 class PubmedArticleFilter(django_filters.FilterSet):
   """
