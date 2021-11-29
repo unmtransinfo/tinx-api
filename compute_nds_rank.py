@@ -89,7 +89,7 @@ print('| Hostname: {:46s} |'.format(hostname))
 print('+----------------------------------------------------------+')
 print('')
 
-username = raw_input('MySQL username: ')
+username = input('MySQL username: ')
 password = getpass.getpass(prompt = 'MySQL password: ')
 
 print('')
