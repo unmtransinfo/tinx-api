@@ -110,7 +110,7 @@ sys.stdout.write(' done.\n\n')
 sys.stdout.write('Retrieving list of diseases ... ')
 sys.stdout.flush()
 
-cursor.execute("SELECT id FROM tinx_disease")
+cursor.execute("SELECT doid FROM tinx_disease")
 diseases = cursor.fetchall()
 print('done.')
 disease_cnt = len(diseases)
@@ -136,8 +136,8 @@ print('Computing NDS ranks ...')
 def get_datapoints_for_disease(disease_id):
   """
   Retrieves all datapoints (associated targets) for the specified disease as
-  an array of tuples, where each tuple is of the form (tinx_importance.id,
-  novelty, importance). The returned datapoints will be sorted in descending
+  an array of tuples, where each tuple is of the form (protein_id, novelty, 
+  importance). The returned datapoints will be sorted in descending
   order by importance.
 
   :param disease_id:  The ID of the disease for which to retrieve data.
@@ -145,12 +145,12 @@ def get_datapoints_for_disease(disease_id):
   """
   cursor.execute("""
     SELECT
-      tinx_importance.id,
+      tinx_importance.protein_id,
       tinx_novelty.score AS novelty,
       tinx_importance.score AS importance
     FROM tinx_importance
     JOIN tinx_novelty ON tinx_importance.protein_id = tinx_novelty.protein_id
-    WHERE tinx_importance.disease_id = %s
+    WHERE tinx_importance.doid = %s
     ORDER BY importance DESC""", (disease_id, ))
   return cursor.fetchall()
 
@@ -168,6 +168,10 @@ def bin_into_fronts(disease_id):
   max_novelty = None
   ret = dict()
   last_visited = 0
+
+  # v[0] : Protein_id
+  # v[1] : Novelty
+  # v[2] : Importance
 
   while len(datapoints) > 0:
     # Note: This imperative approach was found to be significantly faster than
@@ -195,16 +199,17 @@ def bin_into_fronts(disease_id):
   return ret
 
 
-def update_ranks(updates):
+def update_ranks(updates, doid):
   """
   Inserts a row into tinx_nds_rank for each entry in the provided dictionary.
 
   :param updates: A dictionary mapping tinx_importance_id to the desired rank.
   :return:
   """
-  cursor.executemany("""
-    INSERT INTO tinx_nds_rank (tinx_importance_id, rank)
-    VALUES (%s, %s)""", updates.items())
+  cursor.executemany(f"""
+    INSERT INTO tinx_nds_rank (doid, protein_id, `rank`)
+    VALUES ('{doid}', %s, %s)""", updates.items())
+
 
 # Print the inital (0%) progress bar
 printProgressBar(0, points_to_score, prefix = 'Progress:', suffix = 'Complete', length = 50)
@@ -215,7 +220,7 @@ points_ranked = 0
 for i in range(0, disease_cnt):
   updates = bin_into_fronts(diseases[i][0])
   points_ranked += len(updates)
-  update_ranks(updates)
+  update_ranks(updates, diseases[i][0])
   printProgressBar(points_ranked, points_to_score,
                    prefix = 'Progress:',
                    suffix = 'Complete [Working on disease {} of {}]'.format(i, disease_cnt),
