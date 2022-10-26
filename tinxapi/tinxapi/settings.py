@@ -84,6 +84,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
+    'tcrd_meta': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'metadata.sqlite3')
+    },
     'tcrd': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': secrets.tcrd['host'],
@@ -93,7 +97,7 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = [ 'tinxapi.dbrouter.DatabaseRouter' ]
+DATABASE_ROUTERS = ['tinxapi.dbrouter.DatabaseRouter']
 
 
 # Password validation
