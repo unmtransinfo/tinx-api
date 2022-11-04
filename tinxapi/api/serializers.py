@@ -23,7 +23,6 @@ class DoParentSerializer(serializers.ModelSerializer):
         return disease.id
 
     def get_name(selfself, obj):
-        print(obj.pk)
         disease = Disease.objects.filter(doid=obj.pk).first()
         if not disease:
             return
@@ -127,7 +126,7 @@ class TargetSerializer(serializers.Serializer):
     fam = serializers.CharField(source='target.fam')
     famext = serializers.CharField(source='target.famext')
     tdl = serializers.CharField(source='target.tdl')
-    dtoid = serializers.CharField(source='protein.dto')
+    dtoid = serializers.SerializerMethodField()
     num_important_diseases = serializers.SerializerMethodField()
     novelty = serializers.SerializerMethodField()
     diseases = serializers.SerializerMethodField()
@@ -146,6 +145,8 @@ class TargetSerializer(serializers.Serializer):
     def get_num_important_diseases(self, obj):
         number = ProteinMetadata.objects.filter(protein_id=obj.protein.id).first()
         return number.num_important_targets if number else None
+    def get_dtoid(self, obj):
+        return obj._protein_cache.dto_id.replace('_', ':')
 
     def get_diseases(self, obj):
         """
