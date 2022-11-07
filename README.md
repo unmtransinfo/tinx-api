@@ -85,3 +85,36 @@ https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-tryin
 1. Configure docker to run on startup: `sudo systemctl enable docker`
 2. Configure tinx container to always run: `docker run -dit --restart unless-stopped -v $PWD:/tinx -p 8000:8000 -ti tinx`
 
+## Solr
+
+### Missing Schema Params
+
+Haystack won't add all the necessary schema parameters that Solr-8 needs to run through `./manage.py build_solr_schema`
+
+Make the following replacement in managed-schema
+
+```
+<!-- <field name="django_ct" type="string" indexed="true" stored="true" multiValued="false"/> -->
+<field name="django_ct" type="text_general" indexed="true" stored="true" multiValued="false"/>
+```
+
+Then add this block after the last <fieldtype> element
+
+```
+<!-- NRR manual insert start -->
+<!-- Lines from origin managed-schema: -->
+<fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+<fieldType name="pdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
+<fieldType name="pdouble" class="solr.DoublePointField" docValues="true"/>
+<fieldType name="pdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
+<fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+<fieldType name="pfloats" class="solr.FloatPointField" docValues="true" multiValued="true"/>
+<fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+<fieldType name="pints" class="solr.IntPointField" docValues="true" multiValued="true"/>
+<fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+<fieldType name="plongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+<!-- NRR manual insert end -->
+
+```
+
+Solr-8 can now be restarted and the indexes updated through `./manage.py rebuild_index`

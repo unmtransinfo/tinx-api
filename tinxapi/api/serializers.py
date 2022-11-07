@@ -148,6 +148,12 @@ class TargetSerializer(serializers.Serializer):
     def get_dtoid(self, obj):
         return obj._protein_cache.dto_id.replace('_', ':')
 
+    def get_dtoid(self, obj):
+        try:
+            return obj._protein_cache.dto_id.replace('_', ':')
+        except Exception as e:
+            return None
+
     def get_diseases(self, obj):
         """
         Populates the `diseases` field above (by name) with a hyperlink to the
@@ -175,7 +181,7 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
         fields = ('disease', 'articles', 'importance', 'category',)
 
     def get_category(self, obj):
-        return DiseaseMetadata.objects.filter(tinx_disease_id=obj.disease_id).first().category
+        return DiseaseWithMetadataSerializer(obj.disease, many=False, context=self.context).data['category']
 
     def get_articles(self, obj):
         if 'request' in self.context:

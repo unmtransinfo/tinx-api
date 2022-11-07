@@ -1,0 +1,7 @@
+{{ object.tinx_id }}
+{{ object.name }}
+{{ object.description }}
+{{ object.ttype }}
+{{ object.fam }}
+{{ object.famext }}
+{{ object.tdl }}

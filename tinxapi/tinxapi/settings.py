@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',
     'rest_framework',
     'api.apps.ApiConfig',
     'django_filters',
@@ -147,5 +148,16 @@ REST_FRAMEWORK = {
 
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
+
+HAYSTACK_CONNECTIONS = 'solr'
+HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://localhost:8983/solr/haystack'
+    },
+}
+
 
 CORS_ORIGIN_ALLOW_ALL = True

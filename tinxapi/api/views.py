@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.shortcuts import render
 from django.db.migrations.recorder import MigrationRecorder
 
@@ -21,6 +23,22 @@ from api.models import *
 from api.serializers import *
 from api.filters import *
 from api.paginators import RestrictedPagination
+from haystack.query import SearchQuerySet
+from haystack.inputs import AltParser
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class Search(APIView):
+
+    def get(self, request, format=None):
+        model = Disease if request.query_params.get('type') == 'disease' else Target
+        default = SearchQuerySet().filter(
+            content=AltParser('edismax', request.query_params.get('q'), df="text")
+        ).models(model)
+        defaultGen = [e.get_stored_fields() for e in default]
+        return Response(defaultGen)
 
 
 class DiseaseViewSet(mixins.ListModelMixin,

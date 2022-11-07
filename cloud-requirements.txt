@@ -2,8 +2,10 @@ Django==1.11.17
 django-filter==1.1.0
 djangorestframework==3.8.2
 djangorestframework-filters==0.10.2
+django-haystack
 mysqlclient==1.3.13
 pytz==2018.5
+pysolr
 certifi==2018.8.24
 chardet==3.0.4
 coreapi==2.3.3

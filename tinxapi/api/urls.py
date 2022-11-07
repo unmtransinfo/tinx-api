@@ -54,12 +54,14 @@ urlpatterns = \
         views.DiseaseTargetsViewSet.as_view({'get' : 'retrieve'}),
         name='disease-targets'),
 
-    url(r'^diseases/(?P<disease_id>[0-9]+)/targets/(?P<target_id>[0-9]+)/articles$',
+    url(r'^diseases/(?P<disease_id>.+)/targets/(?P<target_id>[0-9]+)/articles$',
         views.ArticleViewSet.as_view({'get' : 'list'}),
         name='disease-target-articles'),
 
-    url(r'^targets/(?P<target_id>[0-9]+)/diseases/(?P<disease_id>[0-9]+)/articles$',
+    url(r'^targets/(?P<target_id>[0-9]+)/diseases/(?P<disease_id>.+)/articles$',
         views.ArticleViewSet.as_view({'get' : 'list'}),
         name='target-disease-articles'),
+
+    url(r'^search/', views.Search.as_view(), name='search-api'),
 
   ] + router.urls

@@ -29,9 +29,8 @@ class DiseaseMetadata(models.Model):
     tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
-    tinx_disease = models.ForeignKey(Disease)
+    tinx_disease = models.ForeignKey(Disease, on_delete=models.PROTECT)
     num_important_targets = models.IntegerField()
-    category = models.TextField()
 
     class Meta:
         db_table = u'tinx_disease_metadata'
@@ -70,7 +69,7 @@ class Protein(models.Model):
     geneid = models.IntegerField()
     sym = models.CharField(max_length=20)
     family = models.CharField(max_length=255)
-    dto = models.ForeignKey(DTO, db_column='dtoid')
+    dto = models.ForeignKey(DTO, db_column='dtoid', on_delete=models.PROTECT)
 
     class Meta:
         ordering = ('id',)
@@ -82,7 +81,7 @@ class ProteinMetadata(models.Model):
     tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
-    protein = models.ForeignKey(Protein)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     num_important_targets = models.IntegerField()
 
     class Meta:
@@ -96,10 +95,11 @@ class Target(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
     ttype = models.CharField(max_length=255)
-    description = models.TextField()
     tdl = models.CharField(max_length=255)
     fam = models.CharField(max_length=255)
     famext = models.CharField(max_length=255)
+    comment = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
     class Meta:
         ordering = ('id',)
@@ -109,8 +109,8 @@ class Target(models.Model):
 class TinxTarget(models.Model):
     tcrd_model = True
 
-    target_id = models.ForeignKey(Target, primary_key=True)
-    protein_id = models.ForeignKey(Protein)
+    target_id = models.ForeignKey(Target, primary_key=True, on_delete=models.PROTECT)
+    protein_id = models.ForeignKey(Protein, on_delete=models.PROTECT)
     uniprot = models.CharField(max_length=255)
     sym = models.CharField(max_length=255)
     tdl = models.CharField(max_length=255)
@@ -125,8 +125,8 @@ class TinxTarget(models.Model):
 class T2TC(models.Model):
     tcrd_model = True
 
-    target = models.OneToOneField(Target, primary_key=True)
-    protein = models.ForeignKey(Protein)
+    target = models.OneToOneField(Target, primary_key=True, on_delete=models.PROTECT)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
 
     class Meta:
         db_table = 't2tc'
@@ -136,7 +136,7 @@ class Novelty(models.Model):
     tcrd_model = True
 
     id = models.IntegerField(primary_key=True)
-    protein = models.ForeignKey(Protein)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
@@ -146,8 +146,8 @@ class Novelty(models.Model):
 class Importance(models.Model):
     tcrd_model = True
 
-    protein = models.ForeignKey(Protein, db_column='protein_id')
-    disease = models.ForeignKey(Disease, db_column='doid', primary_key=True)
+    protein = models.ForeignKey(Protein, db_column='protein_id', on_delete=models.PROTECT)
+    disease = models.ForeignKey(Disease, db_column='doid', primary_key=True, on_delete=models.PROTECT)
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
@@ -169,7 +169,7 @@ class NDSRank(models.Model):
     tcrd_model = True
 
     id = models.IntegerField(primary_key=True)
-    importance = models.ForeignKey(Importance, db_column='tinx_importance_id')
+    importance = models.ForeignKey(Importance, db_column='tinx_importance_id', on_delete=models.PROTECT)
     rank = models.IntegerField()
 
     class Meta:

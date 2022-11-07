@@ -24,5 +24,9 @@ WORKDIR /tinx/tinxapi
 
 EXPOSE 8000
 
+CMD python manage.py build_solr_schema
+CMD python manage.py makemigrations tinxapi
+CMD python manage.py migrate --database=tcrd_meta
+CMD python manage.py migrate --database=tcrd
 CMD python manage.py migrate
 CMD python manage.py runserver 0.0.0.0:8000

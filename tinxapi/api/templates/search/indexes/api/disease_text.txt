@@ -1,0 +1,3 @@
+{{ object.doid }}
+{{ object.name }}
+{{ object.summary }}
