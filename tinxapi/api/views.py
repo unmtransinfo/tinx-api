@@ -33,12 +33,17 @@ from rest_framework.response import Response
 class Search(APIView):
 
     def get(self, request, format=None):
-        model = Disease if request.query_params.get('type') == 'disease' else Target
+        diseaseType = request.query_params.get('type') == 'disease'
+        model = Disease if diseaseType else TinxTarget
         default = SearchQuerySet().filter(
             content=AltParser('edismax', request.query_params.get('q'), df="text")
         ).models(model)
-        defaultGen = [e.get_stored_fields() for e in default]
-        return Response(defaultGen)
+
+        if diseaseType:
+            targetGen = [e.get_stored_fields() for e in default]
+        else:
+            targetGen = [e.get_stored_fields() for e in default if e.get_stored_fields()['dtoid']]
+        return Response(targetGen)
 
 
 class DiseaseViewSet(mixins.ListModelMixin,

@@ -109,12 +109,11 @@ class Target(models.Model):
 class TinxTarget(models.Model):
     tcrd_model = True
 
-    target_id = models.ForeignKey(Target, primary_key=True, on_delete=models.PROTECT)
-    protein_id = models.ForeignKey(Protein, on_delete=models.PROTECT)
+    target = models.ForeignKey(Target, primary_key=True, on_delete=models.PROTECT)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     uniprot = models.CharField(max_length=255)
     sym = models.CharField(max_length=255)
     tdl = models.CharField(max_length=255)
-    idg = models.IntegerField()
     fam = models.CharField(max_length=255)
     family = models.CharField(max_length=255)
 

@@ -1,0 +1,21 @@
+{{ object.target.name }}
+{{ object.target.ttype }}
+{{ object.target.tdl }}
+{{ object.target.description }}
+{{ object.target.comment }}
+{{ object.target.idg }}
+{{ object.target.fam }}
+{{ object.target.famext }}
+{{ object.protein.name }}
+{{ object.protein.description }}
+{{ object.protein.uniprot }}
+{{ object.protein.upv_version }}
+{{ object.protein.geneid }}
+{{ object.protein.sym }}
+{{ object.protein.family }}
+{{ object.uniprot }}
+{{ object.sym }}
+{{ object.tdl }}
+{{ object.fam }}
+{{ object.family }}
+

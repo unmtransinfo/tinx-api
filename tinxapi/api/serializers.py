@@ -145,8 +145,6 @@ class TargetSerializer(serializers.Serializer):
     def get_num_important_diseases(self, obj):
         number = ProteinMetadata.objects.filter(protein_id=obj.protein.id).first()
         return number.num_important_targets if number else None
-    def get_dtoid(self, obj):
-        return obj._protein_cache.dto_id.replace('_', ':')
 
     def get_dtoid(self, obj):
         try:
