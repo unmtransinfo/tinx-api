@@ -186,7 +186,7 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
             FROM
                 tinx_nds_rank
                 INNER JOIN protein ON (tinx_nds_rank.protein_id = protein.id)
-                join tinx_importance on tinx_nds_rank.doid = tinx_importance.doid
+                JOIN tinx_importance ON (tinx_nds_rank.doid = tinx_importance.doid AND tinx_importance.protein_id = protein.id)
                 INNER JOIN tinx_disease ON tinx_disease.doid = tinx_nds_rank.doid
                 join t2tc on t2tc.protein_id = tinx_nds_rank.protein_id
                 join tinx_novelty on tinx_novelty.protein_id = tinx_nds_rank.protein_id
