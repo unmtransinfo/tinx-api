@@ -154,28 +154,61 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
     filter_class = DiseaseTargetFilter
 
     def get_queryset(self):
+        limit = int(self.request.query_params.get('limit')) or self.pagination_class.max_limit
+
         doid = DiseaseMetadata.objects \
             .filter(id=self.kwargs['disease_id']).first().tinx_disease_id
 
-        importance = Importance.objects \
-            .prefetch_related('protein') \
-            .prefetch_related('disease') \
-            .filter(disease_id=doid) \
-            .extra(tables=['tinx_novelty', 't2tc', 'target', 'tinx_nds_rank', 'tinx_importance'],
-                   where=['tinx_novelty.protein_id = tinx_importance.protein_id',
-                          't2tc.protein_id = tinx_importance.protein_id',
-                          'target.id = t2tc.target_id',
-                          'tinx_nds_rank.doid = tinx_importance.doid'],
-                   select={'novelty': 'tinx_novelty.score',
-                           'target_id': 'target.id',
-                           'target_name': 'target.name',
-                           'target_fam': 'target.fam',
-                           'target_famext': 'target.famext',
-                           'target_tdl': 'target.tdl',
-                           'nds_rank': 'tinx_nds_rank.rank'}) \
-            .order_by('nds_rank')
+        query = """
+            SELECT (tinx_novelty.score) AS novelty,
+                   (target.id)          AS target_id,
+                   (target.name)        AS target_name,
+                   (target.fam)         AS target_fam,
+                   (target.famext)      AS target_famext,
+                   (target.tdl)         AS target_tdl,
+                   (tinx_nds_rank.rank) AS nds_rank,
+                   tinx_importance.protein_id,
+                   tinx_importance.doid,
+                   tinx_importance.score,
+                   protein.id,
+                   protein.name,
+                   protein.description,
+                   protein.uniprot,
+                   protein.up_version,
+                   protein.geneid,
+                   protein.sym,
+                   protein.family,
+                   protein.dtoid,
+                   tinx_disease.doid,
+                   tinx_disease.name,
+                   tinx_disease.summary,
+                   tinx_disease.score
+            FROM
+                tinx_nds_rank
+                INNER JOIN protein ON (tinx_nds_rank.protein_id = protein.id)
+                join tinx_importance on tinx_nds_rank.doid = tinx_importance.doid
+                INNER JOIN tinx_disease ON tinx_disease.doid = tinx_nds_rank.doid
+                join t2tc on t2tc.protein_id = tinx_nds_rank.protein_id
+                join tinx_novelty on tinx_novelty.protein_id = tinx_nds_rank.protein_id
+                join target on t2tc.target_id = target.id
+            WHERE tinx_nds_rank.doid = "{0}"
+            ORDER BY nds_rank
+            LIMIT {1};
+        """.format(doid, limit)
 
-        return importance
+        ndsRanks = Importance.objects.raw(query)
+
+        class RawWrapper:
+            def __init__(self, rawqueryset, model):
+                self.rawQuerySet = rawqueryset
+                self.model = model
+
+            def all(self):
+                return [i for i in self.rawQuerySet]
+
+        qs = RawWrapper(ndsRanks, Importance)
+        
+        return qs
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
