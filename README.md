@@ -86,10 +86,20 @@ https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-tryin
 2. Configure tinx container to always run: `docker run -dit --restart unless-stopped -v $PWD:/tinx -p 8000:8000 -ti tinx`
 
 ## Solr
+You must use solr:6.6.6, Solr8 does not work correctly with Haystack.
+There is a bug with django-haystack where it does not handle django_ct correctly. There is no fix for this issue presently so we are capping our version of Solr at 6.6.6 as opposed to editing core files.
 
+If you see an issue involving django_ct or django_id, you are using the wrong version of Solr.
+
+It is not clear to me how the managed-schema file was generated, but it is the only one that works presently, so preserve it.
+
+I've authored scripts to redeploy solr once it is built and you can see that work in redeploy-solr.sh. 
+
+I've also created a utility script to update solr indices and that can be found in update_solr_index.sh
 ### Missing Schema Params
 
-Haystack won't add all the necessary schema parameters that Solr-8 needs to run through `./manage.py build_solr_schema`
+Haystack won't add all the necessary schema parameters that Solr needs to run through `./manage.py build_solr_schema`
+
 
 Make the following replacement in managed-schema
 
