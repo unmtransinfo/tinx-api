@@ -18,3 +18,4 @@ MarkupSafe==1.0
 Pygments==2.2.0
 requests==2.19.1
 django-cors-headers==2.4.0
+tqdm
