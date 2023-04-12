@@ -8,4 +8,4 @@ secrets.py
 tcrd_subset.sql
 tcrd_subset.sql.gz
 
-
+*.sqlite3

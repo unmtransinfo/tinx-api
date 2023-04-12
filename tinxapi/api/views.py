@@ -236,15 +236,16 @@ class ArticleViewSet(mixins.ListModelMixin,
 
     def get_queryset(self):
         if 'disease_id' in self.kwargs and 'target_id' in self.kwargs:
-            return PubmedArticle.objects \
+            queryset = PubmedArticle.objects \
                 .extra(tables=['tinx_articlerank', 'tinx_importance', 't2tc'],
                        where=['tinx_articlerank.pmid = pubmed.id',
                               'tinx_importance.doid = tinx_articlerank.doid',
+                              'tinx_importance.protein_id = tinx_articlerank.protein_id',
                               't2tc.protein_id = tinx_importance.protein_id',
                               'tinx_importance.doid = %s',
                               't2tc.target_id = %s'],
-                       params=[self.kwargs['disease_id'], self.kwargs['target_id']]) \
-                .all()
+                       params=[self.kwargs['disease_id'], self.kwargs['target_id']])
+            return queryset.all()
         else:
             return PubmedArticle.objects.all()
 
