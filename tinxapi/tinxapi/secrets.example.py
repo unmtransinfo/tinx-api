@@ -1,5 +1,7 @@
+import os
+
 tcrd = {
-	'host'     : '172.17.0.1',
+	'host'     : os.environ['DB_HOST'],
 	'user'     : 'tcrd_read_only',
 	'password' : 'tcrd_read_only'
 }
