@@ -1,0 +1,74 @@
+volumes:
+  nginx:
+  static_files_tinx:
+  static_files_cfchem:
+  cert:
+services:
+  cfchem_api:
+    build:
+      context: https://github.com/unmtransinfo/CFChemAPI.git#:app
+    depends_on:
+      mysql:
+        condition: service_healthy
+  cfchem_ui:
+    build:
+      context: https://github.com/unmtransinfo/CFChemUI.git
+    environment:
+      - NODE_OPTIONS=--openssl-legacy-provider
+    command: npx vite build
+    volumes:
+      - static_files_cfchem:/app/dist/
+  tinx_ui:
+    build:
+      context: https://github.com/Jonathan-Wahl/tinx-ui.git#TINX-35
+    command: npm run build
+    environment:
+      - NODE_OPTIONS=--openssl-legacy-provider
+    volumes:
+      - static_files_tinx:/app/dist
+  tinx_api:
+    build:
+      context: https://github.com/Jonathan-Wahl/tinx-api.git#TINX-35
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - DB_HOST=mysql
+  nginx:
+    image: nginx:1
+    volumes:
+      - static_files_tinx:/usr/share/nginx/html/static_files_tinx:ro
+      - static_files_cfchem:/usr/share/nginx/html/static_files_cfchem:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 443:443
+      - 80:80
+    depends_on:
+      tinx_api:
+        condition: service_started
+      cfchem_api:
+        condition: service_started
+      tinx_ui:
+        condition: service_completed_successfully
+      cfchem_ui:
+        condition: service_completed_successfully
+      certbot:
+        condition: service_completed_successfully
+  mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_USER=tcrd_read_only
+      - MYSQL_PASSWORD=tcrd_read_only
+      - MYSQL_DATABASE=tcrd
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 20
+  # certbot:
+  #   image: neilpang/acme.sh
+  #   volumes:
+  #     - cert:/out
+  #   command: --issue -d example.com  --dns dns_cf
+
