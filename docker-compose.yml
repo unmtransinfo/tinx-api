@@ -8,7 +8,7 @@ volumes:
 services:
   tinx_ui:
     build:
-      context: https://github.com/Jonathan-Wahl/tinx-ui.git#TINX-35
+      context: https://github.com/unmtransinfo/tinx-ui.git#TINX-35
     command: npm run build
     environment:
       - NODE_OPTIONS=--openssl-legacy-provider
