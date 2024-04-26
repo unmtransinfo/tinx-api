@@ -56,6 +56,8 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 10s
       retries: 20
+    volumes:
+      - ${DATABASE_VOLUME_PATH:-./db}:/var/lib/mysql
   # certbot:
   #   image: neilpang/acme.sh
   #   volumes:

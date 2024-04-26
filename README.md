@@ -19,7 +19,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 ####  2. (Skip this step if you have been provided a copy of the database to load.) On a machine with the full tcrd database, you can run the script `export_tcrd_subset.sh`. This creates a file called `tcrd_subset.sql.gz` that has all of the tcrd tables needed by the TIN-X REST API.
 
-#### 3. Upload the file `tcrd_subset.sql.gz` to the same folder where you cloned `tinxapi` on the local machine / server. Then execute the following commands: 
+#### 3. Upload the file `tcrd_subset.sql.gz` to the same folder where you cloned `tinxapi` on the local machine / server. Then execute the following commands:
 
 ```
 $ gunzip tcrd_subset.sql.gz
@@ -93,7 +93,7 @@ If you see an issue involving django_ct or django_id, you are using the wrong ve
 
 It is not clear to me how the managed-schema file was generated, but it is the only one that works presently, so preserve it.
 
-I've authored scripts to redeploy solr once it is built and you can see that work in redeploy-solr.sh. 
+I've authored scripts to redeploy solr once it is built and you can see that work in redeploy-solr.sh.
 
 I've also created a utility script to update solr indices and that can be found in update_solr_index.sh
 ### Missing Schema Params
@@ -128,3 +128,26 @@ Then add this block after the last <fieldtype> element
 ```
 
 Solr-8 can now be restarted and the indexes updated through `./manage.py rebuild_index`
+
+
+
+
+## Deployment
+
+### Basic deployment (Easiest):
+* Copy `.env.example` to `.env`
+* Run `docker compose up`
+
+#### Notes
+* You should create a cron job to back up ./db regularly. You can tar the directory (requires stopping containers) or use mysqldump (https://dev.mysql.com/doc/refman/8.3/en/mysqldump.html) along with the mysql container. (ex: `docker compose exec mysql mysqldump [options] > dump.sql`)
+
+### Recommended (Requires external MySql database):
+
+* Copy `.env.example` to `.env`
+* Edit .env to have connection information for an external database
+* Run `docker compose up`
+
+### Note
+* The docker compose file comes with a Mysql database however, it is recommended to use an external Mysql database. To connect to an external database, copy the .env.example file to .env and edit the variables.
+
+* If you decide to use the internal database the datastore location can be changed with DATABASE_VOLUME_PATH (default ./db)
