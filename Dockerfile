@@ -19,7 +19,4 @@ RUN pip install -r /tinx/cloud-requirements.txt
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 
-RUN python manage.py build_solr_schema
-RUN python manage.py makemigrations
-
-CMD sh -c "python manage.py migrate --database=tcrd_meta && python manage.py migrate --database=tcrd && python manage.py migrate && python tinxapi/metadata.py && python manage.py runserver 0.0.0.0:8000"
+CMD sh -c "python manage.py migrate --database=tcrd_meta && python manage.py migrate --database=tcrd && python manage.py migrate && python tinxapi/metadata.py && python manage.py build_solr_schema && python manage.py makemigrations && python manage.py runserver 0.0.0.0:8000"
