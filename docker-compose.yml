@@ -40,8 +40,8 @@ services:
         condition: service_started
       tinx_ui:
         condition: service_completed_successfully
-      # certbot:
-      #   condition: service_completed_successfully
+      certbot:
+        condition: service_completed_successfully
   mysql:
     image: mysql:8
     command: --default-authentication-plugin=mysql_native_password
@@ -58,9 +58,9 @@ services:
       retries: 20
     volumes:
       - ${DATABASE_VOLUME_PATH:-./db}:/var/lib/mysql
-  # certbot:
-  #   image: neilpang/acme.sh
-  #   volumes:
-  #     - cert:/out
-  #   command: --issue -d example.com  --dns dns_cf
+  certbot:
+    image: neilpang/acme.sh
+    volumes:
+      - cert:/out
+    command: --issue -d unmtid-devapps.net  --dns dns_cf
 
