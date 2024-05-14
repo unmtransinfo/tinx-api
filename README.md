@@ -151,3 +151,5 @@ Solr-8 can now be restarted and the indexes updated through `./manage.py rebuild
 * The docker compose file comes with a Mysql database however, it is recommended to use an external Mysql database. To connect to an external database, copy the .env.example file to .env and edit the variables.
 
 * If you decide to use the internal database the datastore location can be changed with DATABASE_VOLUME_PATH (default ./db)
+
+* The env variable BUILD_COMMAND sets what build the UI uses. It can be one of dev|build-staging|build.

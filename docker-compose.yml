@@ -9,9 +9,11 @@ services:
   tinx_ui:
     build:
       context: https://github.com/unmtransinfo/tinx-ui.git#TINX-35
-    command: npm run build
+    command: npm run ${BUILD_COMMAND}
     environment:
       - NODE_OPTIONS=--openssl-legacy-provider
+      - ASSET_URL=tinx
+      - NOD_ENV=staging
     volumes:
       - static_files_tinx:/app/dist
   tinx_api:
@@ -63,4 +65,4 @@ services:
       - certbot:/etc/letsencrypt:rw
       - certbot_var:/var/lib/letsencrypt:rw
       - certbot_acme:/var/www/:rw
-    command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+    command: -v
