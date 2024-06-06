@@ -14,15 +14,9 @@ RUN source /tinx/venv/bin/activate
 RUN pip install --upgrade pip setuptools==45.2.0 wheel
 RUN pip install --upgrade django==1.11.17
 
-COPY cloud-requirements.txt /tinx/cloud-requirements.txt
+COPY . /tinx
 RUN pip install -r /tinx/cloud-requirements.txt
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 
-CMD python manage.py build_solr_schema
-CMD python manage.py makemigrations tinxapi
-CMD python manage.py migrate --database=tcrd_meta
-CMD python manage.py migrate --database=tcrd
-CMD python manage.py migrate
-CMD python tinxapi/tinxapi/metadata.py
-CMD python manage.py runserver 0.0.0.0:8000
+CMD sh -c "python manage.py migrate --database=tcrd_meta && python manage.py migrate --database=tcrd && python manage.py migrate && python tinxapi/metadata.py && python manage.py build_solr_schema && python manage.py makemigrations && python manage.py runserver 0.0.0.0:8000"

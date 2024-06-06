@@ -1,0 +1,68 @@
+volumes:
+  nginx:
+  static_files_tinx:
+  certbot:
+  certbot_var:
+  certbot_data:
+  certbot_acme:
+services:
+  tinx_ui:
+    build:
+      context: https://github.com/unmtransinfo/tinx-ui.git#TINX-35
+    command: npm run ${BUILD_COMMAND}
+    environment:
+      - NODE_OPTIONS=--openssl-legacy-provider
+      - ASSET_URL=tinx
+      - NOD_ENV=staging
+    volumes:
+      - static_files_tinx:/app/dist
+  tinx_api:
+    build:
+      context: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=tcrd_read_only
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
+  nginx:
+    image: nginx:1
+    volumes:
+      - static_files_tinx:/usr/share/nginx/html/static_files_tinx:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot:/etc/letsencrupt:ro
+      - certbot_acme:/var/www/certbot:ro
+    ports:
+      - ${TINX_NGINX_SSL_PORT:-442}:443
+      - ${TINX_NGINX_HTTP_PORT:-80}:80
+    depends_on:
+      tinx_api:
+        condition: service_started
+      tinx_ui:
+        condition: service_completed_successfully
+  mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_USER=tcrd_read_only
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=tcrd
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 20
+    volumes:
+      - ${DATABASE_VOLUME_PATH:-./db}:/var/lib/mysql
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    volumes:
+      - certbot:/etc/letsencrypt:rw
+      - certbot_var:/var/lib/letsencrypt:rw
+      - certbot_acme:/var/www/:rw
+    command: -v
