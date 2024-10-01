@@ -8,10 +8,10 @@ services:
     build:
       context: https://github.com/unmtransinfo/tinx-ui.git#TINX-35
     command: npm run ${BUILD_COMMAND}
-    environment:
-      - NODE_OPTIONS=--openssl-legacy-provider
     volumes:
       - static_files_tinx:/app/dist
+    env_file:
+      - .env
   tinx_api:
     build:
       context: .

@@ -16,6 +16,7 @@ RUN pip install --upgrade django==1.11.17
 
 COPY . /tinx
 RUN pip install -r /tinx/cloud-requirements.txt
+RUN sed -i 's/raw_result[DJANGO_CT].split/raw_result[DJANGO_CT][0].split/g' /usr/local/lib/python3.8/site-packages/haystack/backends/solr_backend.py
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 

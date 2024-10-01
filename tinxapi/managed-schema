@@ -78,37 +78,37 @@
     </fieldType>
 
     <field name="id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-    <field name="django_ct" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="django_ct" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="django_id" type="string" indexed="true" stored="true" multiValued="false"/>
-    
+
     <field name="text" type="ngram" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="doid" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="doid_exact" type="string" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="name" type="edge_ngram" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="summary" type="edge_ngram" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="tinx_id" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="target" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="protein" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="dtoid" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="uniprot" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="sym" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="tdl" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="fam" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="family" type="text_en" indexed="true" stored="true" multiValued="false" />
-    
+
     <uniqueKey>id</uniqueKey>
 
     <!--
