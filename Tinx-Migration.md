@@ -69,3 +69,6 @@ And finally, reload the apache server to load the new configuration using
     sudo systemctl reload apache2
 
 
+
+## Security Note
+Docker and Ubuntu do not work well together and will open ports to the public in error with out ufw knowing. https://github.com/chaifeng/ufw-docker was used to address this.
