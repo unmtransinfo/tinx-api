@@ -1,6 +1,6 @@
 volumes:
+  solr_data:
   static_files_tinx:
-  certbot:
   certbot_var:
   certbot_acme:
 services:
@@ -31,7 +31,7 @@ services:
     volumes:
       - static_files_tinx:/usr/share/nginx/html/static_files_tinx/:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - certbot:/etc/letsencrupt:ro
+      - ./certbot:/etc/letsencrupt:ro
       - certbot_acme:/var/www:ro
     ports:
       - ${TINX_NGINX_SSL_PORT:-443}:443
@@ -62,8 +62,33 @@ services:
     depends_on:
       - nginx
     volumes:
-      - certbot:/etc/letsencrypt:rw
+      - ./certbot:/etc/letsencrypt:rw
       - certbot_var:/var/lib/letsencrypt:rw
       - certbot_acme:/var/www/:rw
       - ./certbot_logs:/var/log/letsencrypt/:rw
     command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+  solr:
+    image: solr:9
+    volumes:
+      - solr_data:/var/solr
+    command:
+      - solr-precreate
+      - haystack
+  solr_update_index:
+    image: solr:9
+    volumes:
+      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
+      - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
+    command: python manage.py update_index
+    depends_on:
+      - solr
+    env_file:
+      - .env
+  solr_update_metadata:
+    image: solr:9
+    volumes:
+      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
+      - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
+    command: python tinxapi/metadata.py
+    env_file:
+      - .env

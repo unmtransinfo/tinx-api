@@ -3,12 +3,12 @@ This is the migration guide to migrate the Tinx server initially from AWS to Chi
 
 This migration was carried out along with Elevato Digital (J. Wahl, D. Cannon, V. Metzger)
 
-> Pre-requisites: 
+> Pre-requisites:
 
-The tinx backend repository can be accessed [here](https://github.com/unmtransinfo/tinx-api). 
+The tinx backend repository can be accessed [here](https://github.com/unmtransinfo/tinx-api).
 The tinx frontend repository can be accessed [here](https://github.com/unmtransinfo/tinx-ui).
 
-The backend and frontend servers run from the same docker files (docker compose), as different services. 
+The backend and frontend servers run from the same docker files (docker compose), as different services.
 
 > Please note: Currently the docker files are on branch TINX-35 on Github (frontend and backend). In case these branches are merged, change the URL in the docker-compose file (for the UI service)
 >
@@ -19,54 +19,46 @@ The backend and frontend servers run from the same docker files (docker compose)
 
  - All Environment variables are uploaded to Git in file named *.env.example*
 
-## Apache Configuration on Chiltepin 
+## Apache Configuration on Chiltepin
 
 > These instructions can also be used to migrate on other server than Chiltepin which runs apache web server to serve requests
 
 The Tinx server runs on port 8000 inside the docker container. To serve this port on apache, and to redirect requests to the `BASE_URL/tinx` (BASE_URL = https://chiltepin.health.unm.edu/ in this case), the `apache.conf` file needs changes (found at /etc/apache2).
 
-In order to separate the specific apache code for tinx, create a new file called `tinx.conf` in `sites-available` directory. 
+In order to separate the specific apache code for tinx, create a new file called `tinx.conf` in `sites-available` directory.
 
 ***tinx.conf***
-    
-        <VirtualHost *:80>
-    ServerName  chiltepin.health.unm.edu
+
+<VirtualHost *:80>
+    ServerName newdrugtargets.org
+    ServerAlias test.newdrugtargets.org
+    ServerAlias api.newdrugtargets.org
     ProxyPreserveHost On
     ProxyRequests Off
-    
+
     # Redirect only /tinx to HTTPS
     RewriteEngine On
     RewriteCond %{HTTPS} !=on
- 
-    RewriteCond %{SERVER_PORT} ^8000$
-    
-    RewriteRule ^/tinx/(.*)$  [https://chiltepin.health.unm.edu/tinx/$1](https://chiltepin.health.unm.edu/tinx/$1)  [R=301,L]
-   
+
+    RewriteCond %{SERVER_PORT} ^80$
+    RewriteRule ^/(.*)$ https://newdrugtargets.org/$1 [R=301,L]
+
     # Proxy the ACME challenge paths for Certbot
-    
-    ProxyPass /.well-known/acme-challenge/  [http://localhost:8080/.well-known/acme-challenge/](http://localhost:8080/.well-known/acme-challenge/)
-    
-    ProxyPassReverse /.well-known/acme-challenge/  [http://localhost:8080/.well-known/acme-challenge/](http://localhost:8080/.well-known/acme-challenge/)
-    
-    </VirtualHost>
-    
-    <VirtualHost *:443>
-    
-    ServerName  chiltepin.health.unm.edu
-    ProxyPreserveHost On
+    ProxyPass /.well-known/acme-challenge/ http://localhost:8080/.well-known/acme-challenge/
+    ProxyPassReverse /.well-known/acme-challenge/ http://localhost:8080/.well-known/acme-challenge/
+</VirtualHost>
+
+<VirtualHost *:443>
+    SSLCertificateFile /opt/tinx/tinx-api/certbot/live/newdrugtargets.org-0003/fullchain.pem # server specific
+    SSLCertificateKeyFile /opt/tinx/tinx-api/certbot/live/newdrugtargets.org-0003/privkey.pem # server specific
+    ServerName newdrugtargets.org
+    ServerAlias test.newdrugtargets.org
+    ServerAlias api.newdrugtargets.org
+    ProxyPass / http://localhost:8443/
+    ProxyPassReverse / http://localhost:8443/
     ProxyRequests Off
-    
-    ProxyPass /tinx  [http://localhost:8000/tinx](http://localhost:8000/tinx)
-    
-    ProxyPassReverse /tinx  [http://localhost:8000/tinx](http://localhost:8000/tinx)
-    
-    # Proxy the ACME challenge paths for Certbot
-    
-    ProxyPass /.well-known/acme-challenge/  [http://localhost:8080/.well-known/acme-challenge/](http://localhost:8080/.well-known/acme-challenge/)
-    
-    ProxyPassReverse /.well-known/acme-challenge/  [http://localhost:8080/.well-known/acme-challenge/](http://localhost:8080/.well-known/acme-challenge/)
-    
-    </VirtualHost>
+    ProxyPreserveHost ON
+</VirtualHost>
 
 The `tinx.conf` file needs to be linked to the main `apache.conf` file. This can be done by adding the following line to `apache.conf`
 
