@@ -13,6 +13,7 @@ services:
     env_file:
       - .env
   tinx_api:
+    restart: unless-stopped
     build:
       context: .
     depends_on:
@@ -27,6 +28,7 @@ services:
     env_file:
       - .env
   nginx:
+    restart: unless-stopped
     image: nginx:1
     volumes:
       - static_files_tinx:/usr/share/nginx/html:ro
@@ -44,6 +46,7 @@ services:
     env_file:
       - .env
   mysql:
+    restart: unless-stopped
     image: mysql:8.0.35
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -68,6 +71,7 @@ services:
       - ./certbot_logs:/var/log/letsencrypt/:rw
     command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
   solr:
+    restart: unless-stopped
     image: solr:9
     volumes:
       - solr_data:/var/solr
