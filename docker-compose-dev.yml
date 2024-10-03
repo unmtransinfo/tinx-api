@@ -6,12 +6,15 @@ volumes:
 services:
   tinx_ui:
     build:
-      context: https://github.com/unmtransinfo/tinx-ui.git#TINX-35
-    command: npm run ${BUILD_COMMAND}
+      context: ../tinx-ui/
+    command: sh -c "npm i && npm run dev"
     volumes:
-      - static_files_tinx:/app/dist
+      - static_files_tinx:/app/dist:rw
+      - ../tinx-ui:/app
     env_file:
       - .env
+    ports:
+      - ${TINX_UI_HTTP_PORT:-8080}:8080
   tinx_api:
     build:
       context: .
@@ -30,7 +33,7 @@ services:
     image: nginx:1
     volumes:
       - static_files_tinx:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-local.conf:/etc/nginx/nginx.conf:ro
       - ./certbot:/etc/letsencrypt:ro
       - certbot_acme:/var/www/certbot:ro
     ports:
@@ -39,8 +42,6 @@ services:
     depends_on:
       tinx_api:
         condition: service_started
-      tinx_ui:
-        condition: service_completed_successfully
     env_file:
       - .env
   mysql:
@@ -57,16 +58,16 @@ services:
       retries: 20
     volumes:
       - ${DATABASE_VOLUME_PATH:-./db}:/var/lib/mysql
-  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    volumes:
-      - ./certbot:/etc/letsencrypt:rw
-      - certbot_var:/var/lib/letsencrypt:rw
-      - certbot_acme:/var/www/:rw
-      - ./certbot_logs:/var/log/letsencrypt/:rw
-    command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+  # certbot:
+  #   image: certbot/certbot
+  #   depends_on:
+  #     - nginx
+  #   volumes:
+  #     - ./certbot:/etc/letsencrypt:rw
+  #     - certbot_var:/var/lib/letsencrypt:rw
+  #     - certbot_acme:/var/www/:rw
+  #     - ./certbot_logs:/var/log/letsencrypt/:rw
+  #   command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
   solr:
     image: solr:9
     volumes:
