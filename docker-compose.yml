@@ -80,7 +80,7 @@ services:
       - solr-precreate
       - haystack
     healthcheck:
-      test: ["CMD-SHELL", "! curl -s -k --max-time 14 --connect-timeout 9 https://newdrugtargets.org:8983/solr/admin/ping || exit 1"]
+      test: ["CMD-SHELL", "! curl -s -k --max-time 14 --connect-timeout 9 https://newdrugtargets.org:8983/solr/admin || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 2
