@@ -149,13 +149,12 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 
-HAYSTACK_CONNECTIONS = 'solr'
-HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
+HAYSTACK_SOLR_URL = 'http://solr:8983/solr'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://localhost:8983/solr/haystack'
+        'URL': 'http://solr:8983/solr/haystack'
     },
 }
 

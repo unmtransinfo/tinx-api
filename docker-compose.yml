@@ -72,12 +72,19 @@ services:
     command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
   solr:
     restart: unless-stopped
-    image: solr:9
+    image: solr:6.6.6
     volumes:
       - solr_data:/var/solr
+      - ./tinxapi/managed-schema:/opt/solr/server/solr/haystack/conf/managed-schema
     command:
       - solr-precreate
       - haystack
+    healthcheck:
+      test: ["CMD-SHELL", "! curl -s -k --max-time 14 --connect-timeout 9 https://newdrugtargets.org:8983/solr || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 2
+      start_period: 5s
   solr_update_index:
     build:
       context: .
@@ -86,7 +93,8 @@ services:
       - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
     command: python manage.py update_index
     depends_on:
-      - solr
+      solr:
+        condition: service_healthy
     env_file:
       - .env
   solr_update_metadata:
@@ -98,3 +106,6 @@ services:
     command: python tinxapi/metadata.py
     env_file:
       - .env
+    depends_on:
+      solr_update_index:
+        condition: service_completed_successfully

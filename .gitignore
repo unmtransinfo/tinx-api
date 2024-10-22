@@ -12,3 +12,4 @@ tcrd_subset.sql.gz
 
 .env
 db
+./certbot_logs
