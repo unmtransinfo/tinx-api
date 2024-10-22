@@ -28,16 +28,17 @@ from haystack.inputs import AltParser
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+import re
 
 class Search(APIView):
 
     def get(self, request, format=None):
         diseaseType = request.query_params.get('type') == 'disease'
         model = Disease if diseaseType else TinxTarget
-        default = SearchQuerySet().filter(
-            content=AltParser('edismax', request.query_params.get('q'), df="text")
-        ).models(model)
+        original_query = request.query_params.get('q')
+        attempt_to_strip = re.sub(r'([+\-&&\|\(\)\{\}\[\]^"~*?:\\/])', r'', original_query)
+        new_query = f"{attempt_to_strip}"
+        default = SearchQuerySet().filter(text=new_query).models(model)
 
         if diseaseType:
             targetGen = [e.get_stored_fields() for e in default]
@@ -207,7 +208,7 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
                 return [i for i in self.rawQuerySet]
 
         qs = RawWrapper(ndsRanks, Importance)
-        
+
         return qs
 
     def retrieve(self, request, *args, **kwargs):
