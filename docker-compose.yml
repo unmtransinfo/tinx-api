@@ -25,6 +25,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
+      - ./:/tinx
     env_file:
       - .env
   nginx:
@@ -42,7 +43,7 @@ services:
       tinx_api:
         condition: service_started
       tinx_ui:
-        condition: service_completed_successfully
+        condition: service_started
     env_file:
       - .env
   mysql:
@@ -53,7 +54,7 @@ services:
       - MYSQL_USER=tcrd_read_only
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_DATABASE=tcrd
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_ROOT_PASSWORD=true
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 10s
@@ -71,27 +72,25 @@ services:
       - ./certbot_logs:/var/log/letsencrypt/:rw
     command: certonly --reinstall --webroot --webroot-path=/var/www/ --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
   solr:
-    restart: unless-stopped
-    image: solr:6.6.6
+    image: docker:latest
     volumes:
-      - solr_data:/var/solr
-      - ./tinxapi/managed-schema:/opt/solr/server/solr/haystack/conf/managed-schema
-    command:
-      - solr-precreate
-      - haystack
+      - ./:/work
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ['sh', '-c', 'chmod +x /work/redeploy-solr.sh && sh /work/redeploy-solr.sh && sleep infinity']
+    tty: true
     healthcheck:
       test: ["CMD-SHELL", "! curl -s -k --max-time 14 --connect-timeout 9 https://newdrugtargets.org:8983/solr/admin || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 2
-      start_period: 5s
+      start_period: 15s
   solr_update_index:
     build:
       context: .
     volumes:
       - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
       - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
-    command: python manage.py update_index
+    command: su -c "python manage.py migrate --database=tcrd_meta && python manage.py migrate --database=tcrd && python tinxapi/metadata.py && python manage.py build_solr_schema && python manage.py makemigrations && python manage.py update_index"
     depends_on:
       solr:
         condition: service_healthy
