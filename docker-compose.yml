@@ -28,6 +28,8 @@ services:
       - ./:/tinx
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   nginx:
     restart: unless-stopped
     image: nginx:1
@@ -84,27 +86,6 @@ services:
       timeout: 10s
       retries: 2
       start_period: 15s
-  solr_update_index:
-    build:
-      context: .
-    volumes:
-      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
-      - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
-    command: su -c "python manage.py migrate --database=tcrd_meta && python manage.py migrate --database=tcrd && python tinxapi/metadata.py && python manage.py build_solr_schema && python manage.py makemigrations && python manage.py update_index"
     depends_on:
-      solr:
-        condition: service_healthy
-    env_file:
-      - .env
-  solr_update_metadata:
-    build:
-      context: .
-    volumes:
-      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
-      - ./tinxapi/managed-schema:/tinx/tinxapi/managed-schema
-    command: python tinxapi/metadata.py
-    env_file:
-      - .env
-    depends_on:
-      solr_update_index:
-        condition: service_completed_successfully
+      tinx_api:
+        condition: service_started

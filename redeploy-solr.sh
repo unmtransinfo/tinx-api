@@ -15,4 +15,5 @@ docker exec -it tinx-solr solr create_core -c haystack -p 8983
 echo "deployed solr container successfully"
 echo "You may visit the SOLR admin panel here: http://35.86.241.213:8983/"
 echo "updating indices"
-# ./update_solr_index.sh
+chmod +x /work/update_solr_index.sh
+sh /work/update_solr_index.sh
