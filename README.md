@@ -155,3 +155,5 @@ Solr-8 can now be restarted and the indexes updated through `./manage.py rebuild
 * The env variable BUILD_COMMAND sets what build the UI uses. It can be one of dev|build-staging|build.
 
 * To deploy production "docker-compose build && docker-compose down && docker-compose up --force-recreate -d"
+
+* To develop with docker compose, clone the tinx-ui repository to `../tinx-ui` and run `docker-compose -f docker-compose-dev.yml` in the tinx-api directory. Both repositories will be linked and changes to tinx-ui populate. (Currently you need to acquire a database dump, this is likely to change)

@@ -25,7 +25,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
-      - ./:/tinx
     env_file:
       - .env
     extra_hosts:
