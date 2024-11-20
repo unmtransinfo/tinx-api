@@ -7,7 +7,7 @@ if docker ps -a --filter "name=^tinx-solr$" --format "{{.Names}}" | grep -w "tin
   docker stop tinx-solr
   docker rm tinx-solr
 fi
-docker run -d -p 127.0.0.1:8983:8983 --name tinx-solr solr:6.6.6
+docker run -d --network tinx-api_default --name tinx-solr solr:6.6.6
 docker exec -it tinx-solr mkdir /opt/solr/server/solr/haystack
 docker exec -it tinx-solr cp -r server/solr/configsets/basic_configs/conf /opt/solr/server/solr/haystack
 docker cp /work/tinxapi/managed-schema tinx-solr:/opt/solr/server/solr/haystack/conf/managed-schema
