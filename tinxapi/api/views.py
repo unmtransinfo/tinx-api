@@ -207,7 +207,7 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
                 return [i for i in self.rawQuerySet]
 
         qs = RawWrapper(ndsRanks, Importance)
-        
+
         return qs
 
     def retrieve(self, request, *args, **kwargs):

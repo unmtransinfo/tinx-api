@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'qgkkf#ajwv!q%%9%^gz&b5t_u1ksdo))w%%-m1$0t7e-6@^c@$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -149,15 +149,14 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 
-HAYSTACK_CONNECTIONS = 'solr'
-HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
+HAYSTACK_SOLR_URL = 'http://tinx-solr:8983/solr'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://localhost:8983/solr/haystack'
+        'URL': 'http://tinx-solr:8983/solr/haystack',
+        'INDEX_NAME': 'haystack',
     },
 }
-
 
 CORS_ORIGIN_ALLOW_ALL = True

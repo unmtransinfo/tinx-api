@@ -12,7 +12,7 @@ def dropTable(cursor, tableName):
 
 
 def main():
-    localdb = sqlite3.connect('tinxapi/metadata.sqlite3')
+    localdb = sqlite3.connect('./metadata.sqlite3')
     remotedb = MySQLdb.connect(host=tcrd['host'], user=tcrd['user'],
                                password=tcrd['password'], database="tcrd")
 
@@ -86,7 +86,7 @@ def disease_ancestors_metadata(cursor, remoteCursor):
     dropTable(cursor, tableName)
     cursor.execute(
         f"""
-            CREATE TABLE IF NOT EXISTS {tableName} 
+            CREATE TABLE IF NOT EXISTS {tableName}
             (doid VARCHAR PRIMARY KEY, max_ancestor VARCHAR, ancestor_path VARCHAR)
         """
     )
@@ -97,7 +97,7 @@ def disease_ancestors_metadata(cursor, remoteCursor):
     query = f"""
         SELECT p1.doid AS doid, COALESCE({coalesce_query}) AS max_ancestor,
             CONCAT_WS(' / ', {concat_query}) AS ancestor_path
-        FROM {remoteTableName} p1 
+        FROM {remoteTableName} p1
     """
     query = query + " ".join(
         f"LEFT JOIN {remoteTableName} p{i} ON p{i}.doid = p{i - 1}.parent_id" for i in range(2, maxParents + 1)

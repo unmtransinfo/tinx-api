@@ -1,5 +1,15 @@
+import os
+from pathlib import Path
+
+
+if os.path.isfile('/run/secrets/mysql_password'):
+  password = Path('/run/secrets/mysql_password').read_text()
+else:
+  password = os.environ['DB_PASSWORD']
+
+
 tcrd = {
-	'host'     : '172.17.0.1',
-	'user'     : 'tcrd_read_only',
-	'password' : 'tcrd_read_only'
+	'host'     : os.environ['DB_HOST'],
+	'user'     : os.environ['DB_USER'],
+	'password' : password
 }

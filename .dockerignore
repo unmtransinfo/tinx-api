@@ -1,0 +1,4 @@
+./db
+./certbot
+*.sql
+*.dump
