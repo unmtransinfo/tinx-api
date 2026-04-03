@@ -1,0 +1,7 @@
+rules:
+  services-alphabetical-order: 0
+  require-quotes-in-ports:
+    - 2
+    - quoteType: double
+  service-image-require-explicit-tag: 1
+  no-unbound-port-interfaces: 1

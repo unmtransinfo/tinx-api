@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/PyCQA/isort
+    rev: 8.0.0
+    hooks:
+      - id: isort
+        args: [--profile, black]
+  - repo: https://github.com/psf/black
+    rev: 26.3.1
+    hooks:
+      - id: black
+        args: [--target-version, py38]
+  - repo: https://github.com/docker-compose-linter/pre-commit-dclint
+    rev: v3.1.0
+    hooks:
+      - id: dclint
+        files: ^(docker-)?compose.*\.ya?ml$
+        args: [--fix] # auto-apply fixes on commit
