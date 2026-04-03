@@ -4,7 +4,7 @@ At the time of writing (04/03/2026) most of the documentation in this repo is un
 
 ### Migration from AWS
 
-See [Tinx-Migration.md]
+See [Tinx-Migration.md](Tinx-Migration.md)
 
 ### Database configuration
 
