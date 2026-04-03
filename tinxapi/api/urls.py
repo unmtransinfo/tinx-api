@@ -1,7 +1,6 @@
 from api import views
+from django.conf.urls import include, url
 from rest_framework import routers
-from django.conf.urls import url, include
-
 from rest_framework.documentation import include_docs_urls
 
 

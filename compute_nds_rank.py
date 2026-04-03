@@ -38,9 +38,10 @@
 # Usage:
 #    python compute_nds_rank.py [database_name] [host_name]
 
-import MySQLdb
 import getpass
 import sys
+
+import MySQLdb
 
 import tinxapi.tinxapi.secrets as secrets
 

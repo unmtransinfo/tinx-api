@@ -1,11 +1,10 @@
 import collections
+import urllib
 
+from api import views
+from api.models import *
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-
-from api.models import *
-from api import views
-import urllib
 
 
 class DoParentSerializer(serializers.ModelSerializer):

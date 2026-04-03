@@ -3,31 +3,23 @@ from __future__ import unicode_literals
 
 import json
 
-from django.shortcuts import render
+from api.filters import *
+from api.models import *
+from api.paginators import RestrictedPagination
+from api.serializers import *
 from django.db.migrations.recorder import MigrationRecorder
-
-# Create your views here.
-
-from rest_framework import viewsets, generics
-from rest_framework.response import Response
-from rest_framework import mixins
-from rest_framework import filters
-from rest_framework.decorators import action
-
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django.db.models.query import Prefetch
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
+from haystack.inputs import AltParser
+from haystack.query import SearchQuerySet
+from rest_framework import filters, generics, mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from api.models import *
-from api.serializers import *
-from api.filters import *
-from api.paginators import RestrictedPagination
-from haystack.query import SearchQuerySet
-from haystack.inputs import AltParser
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
+# Create your views here.
 
 
 class Search(APIView):

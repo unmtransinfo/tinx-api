@@ -1,8 +1,9 @@
+import secrets as s
 import sqlite3
+from contextlib import closing
+
 import MySQLdb
 from tqdm import tqdm
-from contextlib import closing
-import secrets as s
 
 tcrd = s.tcrd
 
