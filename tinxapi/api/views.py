@@ -33,22 +33,28 @@ from rest_framework.response import Response
 class Search(APIView):
 
     def get(self, request, format=None):
-        diseaseType = request.query_params.get('type') == 'disease'
+        diseaseType = request.query_params.get("type") == "disease"
         model = Disease if diseaseType else TinxTarget
-        default = SearchQuerySet().filter(
-            content=AltParser('edismax', request.query_params.get('q'), df="text")
-        ).models(model)
+        default = (
+            SearchQuerySet()
+            .filter(
+                content=AltParser("edismax", request.query_params.get("q"), df="text")
+            )
+            .models(model)
+        )
 
         if diseaseType:
             targetGen = [e.get_stored_fields() for e in default]
         else:
-            targetGen = [e.get_stored_fields() for e in default if e.get_stored_fields()['dtoid']]
+            targetGen = [
+                e.get_stored_fields() for e in default if e.get_stored_fields()["dtoid"]
+            ]
         return Response(targetGen)
 
 
-class DiseaseViewSet(mixins.ListModelMixin,
-                     mixins.RetrieveModelMixin,
-                     viewsets.GenericViewSet):
+class DiseaseViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     Browse all diseases in the database.
@@ -64,31 +70,33 @@ class DiseaseViewSet(mixins.ListModelMixin,
     serializer_class = DiseaseWithMetadataSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filter_class = DiseaseFilter
-    search_fields = ('^name',)
+    search_fields = ("^name",)
 
     def get_queryset(self):
-        return Disease.objects.prefetch_related(
-            'diseasemetadata_set'
-        ).all()
+        return Disease.objects.prefetch_related("diseasemetadata_set").all()
 
     @action(detail=True)
     def children(self, request, *args, **kwargs):
         parent = self.get_object()
         queryset = DoParent.objects.filter(parent_id=parent.doid).all()
 
-        return Response(DoParentSerializer(queryset, many=True, context={'request': request}).data)
+        return Response(
+            DoParentSerializer(queryset, many=True, context={"request": request}).data
+        )
 
     @action(detail=True)
     def parent(self, request, *args, **kwargs):
         child = self.get_object()
         queryset = DoParent.objects.filter(doid=child.doid).first()
 
-        return Response(DoParentSerializer(queryset, many=False, context={'request': request}).data)
+        return Response(
+            DoParentSerializer(queryset, many=False, context={"request": request}).data
+        )
 
 
-class TargetViewSet(mixins.ListModelMixin,
-                    mixins.RetrieveModelMixin,
-                    viewsets.GenericViewSet):
+class TargetViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     Browse all targets in the database.
@@ -96,21 +104,20 @@ class TargetViewSet(mixins.ListModelMixin,
     retrieve:
     Get information about a specific target.
     """
+
     pagination_class = RestrictedPagination
     serializer_class = TargetSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    search_fields = ('^protein__sym', '^target__name')
+    search_fields = ("^protein__sym", "^target__name")
     filter_class = TargetFilter
 
     def get_queryset(self):
-        return T2TC.objects \
-            .select_related('target') \
-            .select_related('protein') \
-            .all()
+        return T2TC.objects.select_related("target").select_related("protein").all()
 
-class TargetDiseasesViewSet(mixins.ListModelMixin,
-                            mixins.RetrieveModelMixin,
-                            viewsets.GenericViewSet):
+
+class TargetDiseasesViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     View the diseases associated with a specific target.
@@ -118,27 +125,29 @@ class TargetDiseasesViewSet(mixins.ListModelMixin,
     retrieve:
     Retrieve information about a specific target-disease association.
     """
+
     pagination_class = RestrictedPagination
     serializer_class = TargetDiseaseSerializer
 
     def get_queryset(self):
-        protein = Protein.objects \
-            .prefetch_related('importance_set') \
-            .prefetch_related() \
-            .filter(id=self.kwargs['target_id']) \
+        protein = (
+            Protein.objects.prefetch_related("importance_set")
+            .prefetch_related()
+            .filter(id=self.kwargs["target_id"])
             .first()
-        return protein._prefetched_objects_cache['importance'].all()
+        )
+        return protein._prefetched_objects_cache["importance"].all()
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, disease__id=kwargs['pk'])
+        result = get_object_or_404(queryset, disease__id=kwargs["pk"])
         serializer = self.serializer_class(result)
         return Response(serializer.data)
 
 
-class DiseaseTargetsViewSet(mixins.ListModelMixin,
-                            mixins.RetrieveModelMixin,
-                            viewsets.GenericViewSet):
+class DiseaseTargetsViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     View targets associated with a specific disease.
@@ -146,18 +155,25 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
     retrieve:
     Retrieve information about a specific disease-target association.
     """
+
     pagination_class = RestrictedPagination
     serializer_class = DiseaseTargetSerializer
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    search_fields = ('^protein__sym', '^target__name')
+    search_fields = ("^protein__sym", "^target__name")
     filter_class = DiseaseTargetFilter
 
     def get_queryset(self):
-        limit = int(self.request.query_params.get('limit')) or self.pagination_class.max_limit
+        limit = (
+            int(self.request.query_params.get("limit"))
+            or self.pagination_class.max_limit
+        )
 
-        doid = DiseaseMetadata.objects \
-            .filter(id=self.kwargs['disease_id']).first().tinx_disease_id
+        doid = (
+            DiseaseMetadata.objects.filter(id=self.kwargs["disease_id"])
+            .first()
+            .tinx_disease_id
+        )
 
         query = """
             SELECT (tinx_novelty.score) AS novelty,
@@ -212,14 +228,14 @@ class DiseaseTargetsViewSet(mixins.ListModelMixin,
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, protein__id=kwargs['pk'])
+        result = get_object_or_404(queryset, protein__id=kwargs["pk"])
         serializer = self.serializer_class(result)
         return Response(serializer.data)
 
 
-class ArticleViewSet(mixins.ListModelMixin,
-                     mixins.RetrieveModelMixin,
-                     viewsets.GenericViewSet):
+class ArticleViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     Browse and search all Pubmed articles in the database.
@@ -227,32 +243,36 @@ class ArticleViewSet(mixins.ListModelMixin,
     retrieve:
     Retrieve information about a specific Pubmed article.
     """
+
     pagination_class = RestrictedPagination
     serializer_class = PubmedArticleSerializer
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filter_class = PubmedArticleFilter
-    search_fields = ('title',)
+    search_fields = ("title",)
 
     def get_queryset(self):
-        if 'disease_id' in self.kwargs and 'target_id' in self.kwargs:
-            queryset = PubmedArticle.objects \
-                .extra(tables=['tinx_articlerank', 'tinx_importance', 't2tc'],
-                       where=['tinx_articlerank.pmid = pubmed.id',
-                              'tinx_importance.doid = tinx_articlerank.doid',
-                              'tinx_importance.protein_id = tinx_articlerank.protein_id',
-                              't2tc.protein_id = tinx_importance.protein_id',
-                              'tinx_importance.doid = %s',
-                              't2tc.target_id = %s'],
-                       params=[self.kwargs['disease_id'], self.kwargs['target_id']])
+        if "disease_id" in self.kwargs and "target_id" in self.kwargs:
+            queryset = PubmedArticle.objects.extra(
+                tables=["tinx_articlerank", "tinx_importance", "t2tc"],
+                where=[
+                    "tinx_articlerank.pmid = pubmed.id",
+                    "tinx_importance.doid = tinx_articlerank.doid",
+                    "tinx_importance.protein_id = tinx_articlerank.protein_id",
+                    "t2tc.protein_id = tinx_importance.protein_id",
+                    "tinx_importance.doid = %s",
+                    "t2tc.target_id = %s",
+                ],
+                params=[self.kwargs["disease_id"], self.kwargs["target_id"]],
+            )
             return queryset.all()
         else:
             return PubmedArticle.objects.all()
 
 
-class DTOViewSet(mixins.ListModelMixin,
-                 mixins.RetrieveModelMixin,
-                 viewsets.GenericViewSet):
+class DTOViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     list:
     Browse and search all DTO entities in our database.
@@ -263,18 +283,21 @@ class DTOViewSet(mixins.ListModelMixin,
     children:
     Retrieve the list of children for a given DTO entity.
     """
+
     pagination_class = RestrictedPagination
     serializer_class = DTOSerializer
-    queryset = DTO.objects.prefetch_related('protein_set').all()
+    queryset = DTO.objects.prefetch_related("protein_set").all()
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filter_class = DTOFilter
-    search_fields = ('name',)
+    search_fields = ("name",)
 
     @action(detail=True)
     def children(self, request, *args, **kwargs):
         parent = self.get_object()
         queryset = self.get_queryset().filter(parent=parent.id)
         return Response(
-            self.serializer_class(queryset, many=True, context={'request': request}).data
+            self.serializer_class(
+                queryset, many=True, context={"request": request}
+            ).data
         )
