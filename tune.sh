@@ -103,5 +103,5 @@ join_buffer_size               = 32M
 local_infile                   = 1
 EOF
 
-echo "mysql-tuning.cnf written — ready to run: docker compose up -d"
+echo "mysql-tuning.cnf written"
 
