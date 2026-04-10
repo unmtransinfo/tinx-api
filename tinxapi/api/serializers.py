@@ -1,7 +1,6 @@
 import collections
 import urllib
 
-from api import views
 from api.models import *
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -335,6 +334,8 @@ class DTOSerializer(serializers.ModelSerializer):
         if protein is None:
             return None
         else:
+            from api import views
+
             queryset = (
                 views.TargetViewSet().get_queryset().filter(protein_id=protein.id)
             )

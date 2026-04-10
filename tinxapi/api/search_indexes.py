@@ -1,5 +1,4 @@
 from api.models import *
-from api.serializers import *
 from haystack import indexes
 
 
