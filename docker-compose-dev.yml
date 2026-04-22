@@ -13,15 +13,12 @@ services:
   tinx_api:
     build:
       context: .
-    depends_on:
-      db:
-        condition: service_healthy
     volumes:
       - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
       - ./:/tinx
     environment:
-      - DB_HOST=db
-      - DB_USER=${DB_USER}
+      - DB_HOST=host.docker.internal
+      - DB_USER=${DB_USER:-tinx_user}
       - DB_PASSWORD=${DB_PASSWORD}
     env_file:
       - .env
@@ -29,24 +26,6 @@ services:
       - "${TINX_API_PORT:-8000}:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  db:
-    image: unmtransinfo/tinx_db:3.0
-    volumes:
-      - tinx-mysql-data:/var/lib/mysql
-      - ./mysql-tuning.cnf:/etc/mysql/conf.d/tuning.cnf:ro
-    env_file:
-      - .env
-    command: --default-authentication-plugin=mysql_native_password
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 10s
-      retries: 20
-    deploy:
-      resources:
-        limits:
-          cpus: "${DB_CPUS}"
-          memory: "${DB_MEMORY}"
   solr:
     image: solr:6.6.6
     volumes:
@@ -61,5 +40,4 @@ services:
       retries: 5
       start_period: 30s
 volumes:
-  tinx-mysql-data:
   solr_data:
