@@ -1,5 +1,4 @@
 import collections
-import urllib
 
 from api.models import *
 from rest_framework import serializers
@@ -20,7 +19,7 @@ class DoParentSerializer(serializers.ModelSerializer):
             return
         return disease.id
 
-    def get_name(selfself, obj):
+    def get_name(self, obj):
         disease = Disease.objects.filter(doid=obj.pk).first()
         if not disease:
             return
@@ -63,10 +62,12 @@ class DiseaseSerializer(serializers.ModelSerializer):
         :param obj: The object being serialized.
         :return: A hyperlink.
         """
-        metaid = DiseaseMetadata.objects.filter(tinx_disease_id=obj.pk).first().pk
+        metadata = DiseaseMetadata.objects.filter(tinx_disease_id=obj.pk).first()
+        if not metadata:
+            return None
         return reverse(
             "disease-targets",
-            kwargs={"disease_id": metaid},
+            kwargs={"disease_id": metadata.pk},
             request=self.context["request"],
         )
 
@@ -126,18 +127,15 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
         )
 
     def get_num_important_targets(self, obj):
-        return (
-            DiseaseMetadata.objects.filter(tinx_disease_id=obj.doid)
-            .first()
-            .num_important_targets
-        )
+        metadata = DiseaseMetadata.objects.filter(tinx_disease_id=obj.doid).first()
+        return metadata.num_important_targets if metadata else 0
 
     def get_category(self, obj):
         ancestor = Ancestor.objects.filter(doid=obj.doid).first()
         if not ancestor:
             return obj.name
         disease = Disease.objects.filter(doid=ancestor.max_ancestor).first()
-        return disease.name
+        return disease.name if disease else ""
 
 
 class TargetSerializer(serializers.Serializer):
@@ -230,14 +228,14 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            disease_id = (
-                DiseaseMetadata.objects.filter(tinx_disease_id=obj.disease_id)
-                .first()
-                .id
-            )
+            metadata = DiseaseMetadata.objects.filter(
+                tinx_disease_id=obj.disease_id
+            ).first()
+            if not metadata:
+                return None
             return reverse(
                 "target-disease-articles",
-                kwargs={"disease_id": disease_id, "target_id": obj.protein_id},
+                kwargs={"disease_id": metadata.id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
@@ -296,14 +294,14 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            diseaseMetaId = (
-                DiseaseMetadata.objects.filter(tinx_disease_id=obj.disease_id)
-                .first()
-                .id
-            )
+            metadata = DiseaseMetadata.objects.filter(
+                tinx_disease_id=obj.disease_id
+            ).first()
+            if not metadata:
+                return None
             return reverse(
                 "disease-target-articles",
-                kwargs={"disease_id": diseaseMetaId, "target_id": obj.protein_id},
+                kwargs={"disease_id": metadata.id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
