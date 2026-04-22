@@ -18,6 +18,7 @@ services:
       - ./:/tinx
     environment:
       - DB_HOST=host.docker.internal
+      - DB_NAME=${DB_NAME:-tinx}
       - DB_USER=${DB_USER:-tinx_user}
       - DB_PASSWORD=${DB_PASSWORD}
     env_file:

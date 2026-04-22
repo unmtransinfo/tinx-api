@@ -93,7 +93,7 @@ DATABASES = {
     "tcrd": {
         "ENGINE": "django.db.backends.mysql",
         "HOST": secrets.tcrd["host"],
-        "NAME": "tcrd",
+        "NAME": os.environ.get("DB_NAME", "tinx"),
         "USER": secrets.tcrd["user"],
         "PASSWORD": secrets.tcrd["password"],
     },
