@@ -25,7 +25,6 @@ class Disease(models.Model):
 
 class DiseaseMetadata(models.Model):
     tcrd_model = True
-    tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
     tinx_disease = models.ForeignKey(Disease, on_delete=models.PROTECT)
@@ -79,7 +78,6 @@ class Protein(models.Model):
 
 class ProteinMetadata(models.Model):
     tcrd_model = True
-    tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
@@ -159,13 +157,14 @@ class Importance(models.Model):
 
 
 class Ancestor(models.Model):
-    tcrd_meta = True
+    tcrd_model = True
 
     doid = models.CharField(max_length=255, primary_key=True)
     max_ancestor = models.CharField(max_length=255)
     ancestor_path = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         db_table = "tinx_disease_ancestors"
 
 
