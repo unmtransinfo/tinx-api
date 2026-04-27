@@ -11,7 +11,7 @@ class DoParentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DoParent
-        fields = ("id", "doid", "parent_id", "name")
+        fields = ("doid", "parent_id", "name")
 
     def get_id(self, obj):
         disease = DiseaseMetadata.objects.filter(tinx_disease=obj.pk).first()
