@@ -62,7 +62,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         :param obj: The object being serialized.
         :return: A hyperlink.
         """
-        metadata = DiseaseMetadata.objects.filter(tinx_disease_id=obj.pk).first()
+        metadata = DiseaseMetadata.objects.filter(doid=obj.pk).first()
         if not metadata:
             return None
         return reverse(
@@ -127,7 +127,7 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
         )
 
     def get_num_important_targets(self, obj):
-        metadata = DiseaseMetadata.objects.filter(tinx_disease_id=obj.doid).first()
+        metadata = DiseaseMetadata.objects.filter(doid=obj.doid).first()
         return metadata.num_important_targets if metadata else 0
 
     def get_category(self, obj):
@@ -228,9 +228,7 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            metadata = DiseaseMetadata.objects.filter(
-                tinx_disease_id=obj.disease_id
-            ).first()
+            metadata = DiseaseMetadata.objects.filter(doid=obj.disease_id).first()
             if not metadata:
                 return None
             return reverse(
@@ -294,9 +292,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            metadata = DiseaseMetadata.objects.filter(
-                tinx_disease_id=obj.disease_id
-            ).first()
+            metadata = DiseaseMetadata.objects.filter(doid=obj.disease_id).first()
             if not metadata:
                 return None
             return reverse(
