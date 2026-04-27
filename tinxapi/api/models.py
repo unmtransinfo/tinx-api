@@ -51,7 +51,7 @@ class DTO(models.Model):
 class DoParent(models.Model):
     tcrd_model = True
 
-    doid = models.CharField(max_length=20, primary_key=True)
+    doid = models.CharField(max_length=20)
     parent_id = models.CharField(max_length=20)
 
     class Meta:
@@ -159,7 +159,8 @@ class Importance(models.Model):
 class Ancestor(models.Model):
     tcrd_model = True
 
-    doid = models.CharField(max_length=255, primary_key=True)
+    id = models.AutoField(primary_key=True)
+    doid = models.CharField(max_length=255, db_index=True)
     max_ancestor = models.CharField(max_length=255)
     ancestor_path = models.CharField(max_length=255)
 
