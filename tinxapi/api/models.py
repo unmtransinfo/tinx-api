@@ -16,6 +16,7 @@ class Disease(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         ordering = ("name",)
         db_table = "tinx_disease"
 
@@ -31,6 +32,7 @@ class DiseaseMetadata(models.Model):
     num_important_targets = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = "tinx_disease_metadata"
 
 
@@ -45,6 +47,7 @@ class DTO(models.Model):
     definition = models.CharField(max_length=255, db_column="def")
 
     class Meta:
+        managed = False
         db_table = "dto"
 
 
@@ -55,6 +58,7 @@ class DoParent(models.Model):
     parent_id = models.CharField(max_length=20)
 
     class Meta:
+        managed = False
         db_table = "do_parent"
 
 
@@ -72,6 +76,7 @@ class Protein(models.Model):
     dto = models.ForeignKey(DTO, db_column="dtoid", on_delete=models.PROTECT)
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "protein"
 
@@ -84,6 +89,7 @@ class ProteinMetadata(models.Model):
     num_important_targets = models.IntegerField()
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "tinx_protein_metadata"
 
@@ -101,6 +107,7 @@ class Target(models.Model):
     description = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "target"
 
@@ -117,6 +124,7 @@ class TinxTarget(models.Model):
     family = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         db_table = "tinx_target"
 
 
@@ -127,6 +135,7 @@ class T2TC(models.Model):
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
 
     class Meta:
+        managed = False
         db_table = "t2tc"
 
 
@@ -138,6 +147,7 @@ class Novelty(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         db_table = "tinx_novelty"
 
 
@@ -153,6 +163,7 @@ class Importance(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         db_table = "tinx_importance"
 
 
@@ -179,6 +190,7 @@ class NDSRank(models.Model):
     rank = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = "tinx_nds_rank"
 
 
@@ -193,4 +205,5 @@ class PubmedArticle(models.Model):
     abstract = models.TextField()
 
     class Meta:
+        managed = False
         db_table = "pubmed"

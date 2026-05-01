@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r /tinx/cloud-requirements.txt
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py build_solr_schema && python manage.py makemigrations && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py build_solr_schema && python manage.py runserver 0.0.0.0:8000"]
