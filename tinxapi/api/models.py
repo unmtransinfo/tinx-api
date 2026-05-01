@@ -121,7 +121,7 @@ class Target(models.Model):
 class TinxTarget(models.Model):
     tcrd_model = True
 
-    target = models.ForeignKey(Target, primary_key=True, on_delete=models.PROTECT)
+    target = models.OneToOneField(Target, primary_key=True, on_delete=models.PROTECT)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     uniprot = models.CharField(max_length=255)
     sym = models.CharField(max_length=255)

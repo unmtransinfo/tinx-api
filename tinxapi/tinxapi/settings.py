@@ -155,3 +155,8 @@ HAYSTACK_CONNECTIONS = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Silence W342 for Importance.disease: that ForeignKey uses primary_key=True as a
+# Django workaround for the composite (protein_id, doid) primary key on tinx_importance.
+# Changing it to OneToOneField would be semantically wrong (many proteins per disease).
+SILENCED_SYSTEM_CHECKS = ["fields.W342"]
