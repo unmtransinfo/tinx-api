@@ -30,6 +30,7 @@ class DiseaseMetadata(models.Model):
     id = models.IntegerField(primary_key=True)
     doid = models.CharField(max_length=255)
     num_important_targets = models.IntegerField()
+    category = models.TextField()
 
     class Meta:
         managed = False
@@ -54,7 +55,7 @@ class DTO(models.Model):
 class DoParent(models.Model):
     tcrd_model = True
 
-    doid = models.CharField(max_length=20)
+    doid = models.CharField(max_length=20, primary_key=True)
     parent_id = models.CharField(max_length=20)
 
     class Meta:
@@ -73,7 +74,11 @@ class Protein(models.Model):
     geneid = models.IntegerField()
     sym = models.CharField(max_length=20)
     family = models.CharField(max_length=255)
+    chr = models.CharField(max_length=255)
+    seq = models.TextField()
     dto = models.ForeignKey(DTO, db_column="dtoid", on_delete=models.PROTECT)
+    stringid = models.CharField(max_length=15)
+    dtoclass = models.CharField(max_length=255)
 
     class Meta:
         managed = False
@@ -101,6 +106,7 @@ class Target(models.Model):
     name = models.CharField(max_length=255)
     ttype = models.CharField(max_length=255)
     tdl = models.CharField(max_length=255)
+    idg = models.SmallIntegerField()
     fam = models.CharField(max_length=255)
     famext = models.CharField(max_length=255)
     comment = models.CharField(max_length=255)
@@ -133,6 +139,7 @@ class T2TC(models.Model):
 
     target = models.OneToOneField(Target, primary_key=True, on_delete=models.PROTECT)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
+    nucleic_acid_id = models.IntegerField()
 
     class Meta:
         managed = False

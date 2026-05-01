@@ -14,7 +14,7 @@ class DoParentSerializer(serializers.ModelSerializer):
         fields = ("doid", "parent_id", "name")
 
     def get_id(self, obj):
-        disease = DiseaseMetadata.objects.filter(tinx_disease=obj.pk).first()
+        disease = DiseaseMetadata.objects.filter(doid=obj.doid).first()
         if not disease:
             return
         return disease.id
@@ -107,7 +107,6 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
 
     doid = serializers.CharField()
     name = serializers.CharField()
-    category = serializers.CharField()
     summary = serializers.CharField()
     num_important_targets = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
@@ -131,11 +130,8 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
         return metadata.num_important_targets if metadata else 0
 
     def get_category(self, obj):
-        ancestor = Ancestor.objects.filter(doid=obj.doid).first()
-        if not ancestor:
-            return obj.name
-        disease = Disease.objects.filter(doid=ancestor.max_ancestor).first()
-        return disease.name if disease else ""
+        metadata = DiseaseMetadata.objects.filter(doid=obj.doid).first()
+        return metadata.category if metadata and metadata.category else obj.name
 
 
 class TargetSerializer(serializers.Serializer):
