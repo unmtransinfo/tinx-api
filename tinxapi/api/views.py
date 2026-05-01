@@ -161,7 +161,7 @@ class DiseaseTargetsViewSet(
             or self.pagination_class.max_limit
         )
 
-        doid = DiseaseMetadata.objects.filter(id=self.kwargs["disease_id"]).first().doid
+        doid = self.kwargs["disease_id"]
 
         query = """
             SELECT (tinx_novelty.score) AS novelty,

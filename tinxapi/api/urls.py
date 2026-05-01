@@ -45,13 +45,13 @@ urlpatterns = [
     ),
     # GET /diseases/:disease_id/targets
     url(
-        r"^diseases/(?P<disease_id>[0-9]+)/targets/$",
+        r"^diseases/(?P<disease_id>[^/]+)/targets/$",
         views.DiseaseTargetsViewSet.as_view({"get": "list"}),
         name="disease-targets",
     ),
     # GET /diseases/:disease_id/targets/:target_id
     url(
-        r"^diseases/(?P<disease_id>[0-9]+)/targets/(?P<pk>[0-9]+)$",
+        r"^diseases/(?P<disease_id>[^/]+)/targets/(?P<pk>[0-9]+)$",
         views.DiseaseTargetsViewSet.as_view({"get": "retrieve"}),
         name="disease-targets",
     ),

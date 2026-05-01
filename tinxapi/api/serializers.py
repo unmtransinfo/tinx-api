@@ -50,7 +50,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
     def get_targets(self, obj):
         """
         Populates the `targets` field above (by name) with a hyperlink to the
-        target's diseases (e.g. /diseases/1/targets)
+        target's diseases (e.g. /diseases/DOID:0040069/targets)
 
         :param obj: The object being serialized.
         :return: A hyperlink.
@@ -60,7 +60,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
             return None
         return reverse(
             "disease-targets",
-            kwargs={"disease_id": metadata.pk},
+            kwargs={"disease_id": obj.pk},
             request=self.context["request"],
         )
 
