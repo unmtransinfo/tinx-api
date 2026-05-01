@@ -65,7 +65,7 @@ class DiseaseViewSet(
     search_fields = ("^name",)
 
     def get_queryset(self):
-        return Disease.objects.prefetch_related("diseasemetadata_set").all()
+        return Disease.objects.all()
 
     @action(detail=True)
     def children(self, request, *args, **kwargs):

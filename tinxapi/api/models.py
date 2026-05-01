@@ -28,7 +28,7 @@ class DiseaseMetadata(models.Model):
     tcrd_model = True
 
     id = models.IntegerField(primary_key=True)
-    tinx_disease = models.ForeignKey(Disease, on_delete=models.PROTECT)
+    doid = models.CharField(max_length=255)
     num_important_targets = models.IntegerField()
 
     class Meta:
@@ -86,7 +86,7 @@ class ProteinMetadata(models.Model):
 
     id = models.IntegerField(primary_key=True)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
-    num_important_targets = models.IntegerField()
+    num_important_diseases = models.IntegerField()
 
     class Meta:
         managed = False
@@ -184,9 +184,8 @@ class NDSRank(models.Model):
     tcrd_model = True
 
     id = models.IntegerField(primary_key=True)
-    importance = models.ForeignKey(
-        Importance, db_column="tinx_importance_id", on_delete=models.PROTECT
-    )
+    doid = models.CharField(max_length=20)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     rank = models.IntegerField()
 
     class Meta:
