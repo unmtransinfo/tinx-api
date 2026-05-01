@@ -6,21 +6,14 @@ from rest_framework.reverse import reverse
 
 
 class DoParentSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
 
     class Meta:
         model = DoParent
         fields = ("doid", "parent_id", "name")
 
-    def get_id(self, obj):
-        disease = DiseaseMetadata.objects.filter(doid=obj.doid).first()
-        if not disease:
-            return
-        return disease.id
-
     def get_name(self, obj):
-        disease = Disease.objects.filter(doid=obj.pk).first()
+        disease = Disease.objects.filter(doid=obj.doid).first()
         if not disease:
             return
         return disease.name
