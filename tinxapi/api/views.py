@@ -162,7 +162,7 @@ class DiseaseTargetsViewSet(
             or self.pagination_class.max_limit
         )
 
-        doid = self.kwargs["disease_id"]
+        doid = self.kwargs["doid"]
 
         query = """
             SELECT (tinx_novelty.score) AS novelty,
@@ -241,7 +241,7 @@ class ArticleViewSet(
     search_fields = ("title",)
 
     def get_queryset(self):
-        if "disease_id" in self.kwargs and "target_id" in self.kwargs:
+        if "doid" in self.kwargs and "target_id" in self.kwargs:
             queryset = PubmedArticle.objects.extra(
                 tables=["tinx_articlerank", "tinx_importance", "t2tc"],
                 where=[
@@ -252,7 +252,7 @@ class ArticleViewSet(
                     "tinx_importance.doid = %s",
                     "t2tc.target_id = %s",
                 ],
-                params=[self.kwargs["disease_id"], self.kwargs["target_id"]],
+                params=[self.kwargs["doid"], self.kwargs["target_id"]],
             )
             return queryset.all()
         else:

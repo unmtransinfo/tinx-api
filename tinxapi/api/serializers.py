@@ -59,7 +59,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
             return None
         return reverse(
             "disease-targets",
-            kwargs={"disease_id": obj.pk},
+            kwargs={"doid": obj.pk},
             request=self.context["request"],
         )
 
@@ -218,7 +218,7 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
         if "request" in self.context:
             return reverse(
                 "target-disease-articles",
-                kwargs={"disease_id": obj.disease_id, "target_id": obj.protein_id},
+                kwargs={"doid": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
@@ -279,7 +279,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
         if "request" in self.context:
             return reverse(
                 "disease-target-articles",
-                kwargs={"disease_id": obj.disease_id, "target_id": obj.protein_id},
+                kwargs={"doid": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
