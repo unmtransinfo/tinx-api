@@ -63,6 +63,7 @@ class DiseaseViewSet(
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filter_class = DiseaseFilter
     search_fields = ("^name",)
+    lookup_field = "doid"
 
     def get_queryset(self):
         return Disease.objects.all()

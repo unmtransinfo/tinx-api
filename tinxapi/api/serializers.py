@@ -72,13 +72,13 @@ class DiseaseSerializer(serializers.ModelSerializer):
         :return: A hyperlink.
         """
         return reverse(
-            "disease-parent", kwargs={"pk": obj.pk}, request=self.context["request"]
+            "disease-parent", kwargs={"doid": obj.pk}, request=self.context["request"]
         )
 
     def get_children(self, obj):
         """
         Populates the `children` field above (by name) with a hyperlink to the
-        target's parent (e.g. /diseases/1/children)
+        target's children (e.g. /diseases/DOID:0040069/children)
 
         :param obj:
         :return:
@@ -86,7 +86,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         if "request" in self.context:
             return reverse(
                 "disease-children",
-                kwargs={"pk": obj.pk},
+                kwargs={"doid": obj.pk},
                 request=self.context["request"],
             )
 
