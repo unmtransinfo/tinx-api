@@ -157,9 +157,8 @@ class DiseaseTargetsViewSet(
     filter_class = DiseaseTargetFilter
 
     def get_queryset(self):
-        limit = (
-            int(self.request.query_params.get("limit"))
-            or self.pagination_class.max_limit
+        limit = int(
+            self.request.query_params.get("limit") or self.pagination_class.max_limit
         )
 
         doid = self.kwargs["doid"]
