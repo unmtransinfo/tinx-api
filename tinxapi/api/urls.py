@@ -39,7 +39,7 @@ urlpatterns = [
     ),
     # GET /targets/:target_id/diseases/:disease_id
     url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<pk>[0-9]+)/$",
+        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<pk>[^/]+)/$",
         views.TargetDiseasesViewSet.as_view({"get": "retrieve"}),
         name="target-diseases",
     ),

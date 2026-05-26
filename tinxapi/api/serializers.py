@@ -37,7 +37,6 @@ class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disease
         fields = (
-            "id",
             "doid",
             "name",
             "summary",
@@ -217,12 +216,9 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            metadata = DiseaseMetadata.objects.filter(doid=obj.disease_id).first()
-            if not metadata:
-                return None
             return reverse(
                 "target-disease-articles",
-                kwargs={"disease_id": metadata.id, "target_id": obj.protein_id},
+                kwargs={"disease_id": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
@@ -281,12 +277,9 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            metadata = DiseaseMetadata.objects.filter(doid=obj.disease_id).first()
-            if not metadata:
-                return None
             return reverse(
                 "disease-target-articles",
-                kwargs={"disease_id": metadata.id, "target_id": obj.protein_id},
+                kwargs={"disease_id": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
