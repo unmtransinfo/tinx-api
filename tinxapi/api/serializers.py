@@ -300,12 +300,7 @@ class DTOSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "target", "parent", "children")
 
     def get_target(self, obj):
-        # TODO: This is not very efficient.
-        # Database values need to be changed for this to work, currently protein uses `_` not `:` as a seperator
-        # protein = obj._prefetched_objects_cache['protein'].first()
-
-        # TODO: Seems there aren't any connections between Protein and DTO tables
-        protein = Protein.objects.filter(dto=obj.id.replace(":", "_")).first()
+        protein = Protein.objects.filter(dto=obj.id).first()
 
         if protein is None:
             return None
