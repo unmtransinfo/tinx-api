@@ -39,11 +39,7 @@ class TinxTargetIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_dtoid(self, obj):
         try:
-            return (
-                Protein.objects.filter(id=obj.protein_id)
-                .first()
-                .dto_id.replace("_", ":")
-            )
+            return Protein.objects.filter(id=obj.protein_id).first().dto_id
         except Exception as e:
             return None
 

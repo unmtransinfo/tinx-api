@@ -47,11 +47,10 @@ class DiseaseTargetFilter(django_filters.FilterSet):
 
     uniprot = django_filters.CharFilter(name="protein__uniprot", lookup_expr="iexact")
     sym = django_filters.CharFilter(name="protein__sym", lookup_expr="iexact")
-    # in_dto = django_filters.BooleanFilter(field_name="protein__dto", method="filter_in_dto")
 
     class Meta:
-        model = models.Importance
-        fields = ["uniprot", "sym"]  # , 'in_dto']
+        model = models.NDSRank
+        fields = ["uniprot", "sym"]
 
     def filter_in_dto(self, queryset, name, value):
         return queryset.filter(protein__dto__isnull=not value)

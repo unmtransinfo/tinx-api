@@ -169,7 +169,7 @@ class TargetSerializer(serializers.Serializer):
 
     def get_dtoid(self, obj):
         try:
-            return obj._protein_cache.dto_id.replace("_", ":")
+            return obj._protein_cache.dto_id
         except Exception as e:
             return None
 
@@ -253,7 +253,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     nds_rank = serializers.IntegerField()
 
     class Meta:
-        model = Importance
+        model = NDSRank
         fields = ("target", "articles", "nds_rank", "importance")
 
     def get_target(self, obj):
@@ -272,7 +272,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
         tmp["tdl"] = obj.target_tdl
         tmp["novelty"] = obj.novelty
         tmp["sym"] = obj.protein.sym
-        tmp["dtoid"] = obj.protein.dto_id if hasattr(obj.protein, "dto_id") else None
+        tmp["dtoid"] = obj.protein.dto_id if obj.protein.dto_id else None
         return tmp
 
     def get_articles(self, obj):
