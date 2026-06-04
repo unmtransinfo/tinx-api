@@ -170,7 +170,7 @@ class DiseaseTargetsViewSet(
 
         qs = (
             NDSRank.objects.filter(doid=doid)
-            .select_related("protein", "protein__dto")
+            .select_related("protein")
             .annotate(
                 nds_rank=F("rank"),
                 novelty=Subquery(
