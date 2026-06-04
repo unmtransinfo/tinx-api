@@ -11,4 +11,5 @@ tcrd = {
     "host": os.environ["DB_HOST"],
     "user": os.environ["DB_USER"],
     "password": password,
+    "port": os.environ["DB_PORT"],
 }

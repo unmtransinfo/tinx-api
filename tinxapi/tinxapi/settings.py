@@ -92,6 +92,7 @@ DATABASES = {
         "NAME": os.environ.get("DB_NAME", "tinx"),
         "USER": secrets.tcrd["user"],
         "PASSWORD": secrets.tcrd["password"],
+        "PORT": secrets.tcrd["port"],
     },
 }
 
