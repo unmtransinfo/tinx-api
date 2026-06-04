@@ -209,8 +209,15 @@ class DiseaseTargetsViewSet(
                 disease_id=Value(doid, output_field=django_models.CharField()),
                 protein_id=F("protein__id"),
             )
-            .order_by("rank")
+            .order_by(
+                "rank", "id"
+            )  # add id ordering as tiebreaker for deterministic behavior (nds_rank can have ties)
         )
+
+        # TODO: remove this logging, temp measure
+        import logging
+
+        logging.getLogger(__name__).debug(str(qs.query))
 
         return qs
 
