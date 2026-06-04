@@ -21,6 +21,7 @@ services:
       - DB_NAME=${MYSQL_DATABASE:-tinx}
       - DB_USER=${DB_USER:-tinx_user}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT:-3306}
     env_file:
       - .env
     ports:
