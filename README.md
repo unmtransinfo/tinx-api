@@ -79,3 +79,9 @@ You can run all pre-commit hooks manually without committing:
 ```bash
 pre-commit run --all-files
 ```
+
+## TODO:
+
+- Get rid of search/list endpoint shown by views
+- Fix `/targets/{target_id}/disease/{doid}/` endpoint: Exception Type: KeyError at /targets/2911/diseases/DOID:0060241/
+- Cleanup views: make sure all `target_id` params shown as such, `doid` params shown as such. Rename `id` params
