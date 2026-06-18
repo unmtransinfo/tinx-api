@@ -132,7 +132,7 @@ class TargetDiseasesViewSet(
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         result = get_object_or_404(queryset, disease_id=kwargs["pk"])
-        serializer = self.serializer_class(result)
+        serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
 
@@ -219,7 +219,7 @@ class DiseaseTargetsViewSet(
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         result = get_object_or_404(queryset, protein__id=kwargs["pk"])
-        serializer = self.serializer_class(result)
+        serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
 
