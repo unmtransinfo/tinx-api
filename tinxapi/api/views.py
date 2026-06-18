@@ -101,6 +101,7 @@ class TargetViewSet(
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
     filter_class = TargetFilter
+    lookup_field = "target_id"
 
     def get_queryset(self):
         return T2TC.objects.select_related("target").select_related("protein").all()
@@ -119,6 +120,7 @@ class TargetDiseasesViewSet(
 
     pagination_class = RestrictedPagination
     serializer_class = TargetDiseaseSerializer
+    lookup_field = "doid"
 
     def get_queryset(self):
         protein = (
@@ -131,7 +133,7 @@ class TargetDiseasesViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, disease_id=kwargs["pk"])
+        result = get_object_or_404(queryset, disease_id=kwargs["doid"])
         serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
@@ -149,6 +151,7 @@ class DiseaseTargetsViewSet(
 
     pagination_class = RestrictedPagination
     serializer_class = DiseaseTargetSerializer
+    lookup_field = "target_id"
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
@@ -218,7 +221,7 @@ class DiseaseTargetsViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, protein__id=kwargs["pk"])
+        result = get_object_or_404(queryset, protein__id=kwargs["target_id"])
         serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
