@@ -1,6 +1,6 @@
 name: tinx-dev
 services:
-  tinx_ui:
+  ui:
     build:
       context: ../tinx-ui/
     volumes:
@@ -10,7 +10,7 @@ services:
     ports:
       - "${TINX_UI_HTTP_PORT:-8080}:8080"
     command: sh -c "npm i && npm run dev"
-  tinx_api:
+  api:
     build:
       context: .
     volumes:
