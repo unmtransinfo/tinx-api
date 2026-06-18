@@ -12,7 +12,7 @@ RUN apt-get -y update && \
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 COPY . /tinx
-RUN pip install --no-cache-dir -r /tinx/cloud-requirements.txt
+RUN pip install --no-cache-dir -r /tinx/requirements.txt
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 
