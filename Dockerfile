@@ -1,22 +1,19 @@
-FROM python:3.8.2
-ENV PYTHONUNBUFFERED 1
+# TODO: will need to upgrade from python 3.8 (it is no longer supported)
+FROM python:3.8-bullseye
+ENV PYTHONUNBUFFERED=1
 
 RUN mkdir /tinx
 
-RUN apt-get -y update
-RUN apt-get install -y openssl
-RUN apt-get install -y python3 python3-pip python3-dev default-libmysqlclient-dev python3-venv
+RUN apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-SHELL ["/bin/bash", "-c"]
-RUN python3 -m venv /tinx/venv
-RUN source /tinx/venv/bin/activate
-
-RUN pip install --upgrade pip setuptools==45.2.0 wheel
-RUN pip install --upgrade django==1.11.17
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 COPY . /tinx
-RUN pip install -r /tinx/cloud-requirements.txt
+RUN pip install --no-cache-dir -r /tinx/requirements.txt
 WORKDIR /tinx/tinxapi
 EXPOSE 8000
 
-CMD sh -c "python manage.py build_solr_schema && python manage.py makemigrations && python manage.py runserver 0.0.0.0:8000"
+CMD ["sh", "-c", "python manage.py migrate && python manage.py build_solr_schema && python manage.py runserver 0.0.0.0:8000"]

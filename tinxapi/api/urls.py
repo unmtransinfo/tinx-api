@@ -37,31 +37,31 @@ urlpatterns = [
         views.TargetDiseasesViewSet.as_view({"get": "list"}),
         name="target-diseases",
     ),
-    # GET /targets/:target_id/diseases/:disease_id
+    # GET /targets/:target_id/diseases/:doid
     url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<pk>[0-9]+)/$",
+        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<doid>[^/]+)/$",
         views.TargetDiseasesViewSet.as_view({"get": "retrieve"}),
         name="target-diseases",
     ),
-    # GET /diseases/:disease_id/targets
+    # GET /diseases/:doid/targets
     url(
-        r"^diseases/(?P<disease_id>[0-9]+)/targets/$",
+        r"^diseases/(?P<doid>[^/]+)/targets/$",
         views.DiseaseTargetsViewSet.as_view({"get": "list"}),
         name="disease-targets",
     ),
-    # GET /diseases/:disease_id/targets/:target_id
+    # GET /diseases/:doid/targets/:target_id
     url(
-        r"^diseases/(?P<disease_id>[0-9]+)/targets/(?P<pk>[0-9]+)$",
+        r"^diseases/(?P<doid>[^/]+)/targets/(?P<target_id>[0-9]+)$",
         views.DiseaseTargetsViewSet.as_view({"get": "retrieve"}),
         name="disease-targets",
     ),
     url(
-        r"^diseases/(?P<disease_id>.+)/targets/(?P<target_id>[0-9]+)/articles$",
+        r"^diseases/(?P<doid>.+)/targets/(?P<target_id>[0-9]+)/articles$",
         views.ArticleViewSet.as_view({"get": "list"}),
         name="disease-target-articles",
     ),
     url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<disease_id>.+)/articles$",
+        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<doid>.+)/articles$",
         views.ArticleViewSet.as_view({"get": "list"}),
         name="target-disease-articles",
     ),

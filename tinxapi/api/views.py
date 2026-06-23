@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-
 from api.filters import *
 from api.models import *
+from api.models import Importance, NDSRank, Novelty
 from api.paginators import RestrictedPagination
 from api.serializers import *
-from django.db.migrations.recorder import MigrationRecorder
-from django.db.models.query import Prefetch
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.db import models as django_models
+from django.db.models import F, OuterRef, Subquery, Value
+from django.shortcuts import get_object_or_404
 from haystack.inputs import AltParser
 from haystack.query import SearchQuerySet
-from rest_framework import filters, generics, mixins, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -63,9 +61,10 @@ class DiseaseViewSet(
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filter_class = DiseaseFilter
     search_fields = ("^name",)
+    lookup_field = "doid"
 
     def get_queryset(self):
-        return Disease.objects.prefetch_related("diseasemetadata_set").all()
+        return Disease.objects.all()
 
     @action(detail=True)
     def children(self, request, *args, **kwargs):
@@ -102,6 +101,7 @@ class TargetViewSet(
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
     filter_class = TargetFilter
+    lookup_field = "target_id"
 
     def get_queryset(self):
         return T2TC.objects.select_related("target").select_related("protein").all()
@@ -120,6 +120,7 @@ class TargetDiseasesViewSet(
 
     pagination_class = RestrictedPagination
     serializer_class = TargetDiseaseSerializer
+    lookup_field = "doid"
 
     def get_queryset(self):
         protein = (
@@ -132,8 +133,8 @@ class TargetDiseasesViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, disease__id=kwargs["pk"])
-        serializer = self.serializer_class(result)
+        result = get_object_or_404(queryset, disease_id=kwargs["doid"])
+        serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
 
@@ -150,78 +151,78 @@ class DiseaseTargetsViewSet(
 
     pagination_class = RestrictedPagination
     serializer_class = DiseaseTargetSerializer
+    lookup_field = "target_id"
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
     filter_class = DiseaseTargetFilter
 
     def get_queryset(self):
-        limit = (
-            int(self.request.query_params.get("limit"))
-            or self.pagination_class.max_limit
+        """
+        NOTE: This get_queryset() function assumes the following is true on the DB-side (all queries should return empty set):
+        mysql> SELECT protein_id, COUNT(*) FROM tinx_novelty GROUP BY protein_id HAVING COUNT(*) > 1;
+        Empty set (0.02 sec)
+        mysql> SELECT protein_id, doid, COUNT(*) FROM tinx_importance GROUP BY protein_id, doid HAVING COUNT(*) > 1;
+        Empty set (6.88 sec)
+        mysql> SELECT protein_id, COUNT(*) FROM t2tc GROUP BY protein_id HAVING COUNT(*) > 1;
+        Empty set (0.01 sec)
+
+        You should verify this is true if you ever update the tinx database.
+        """
+        doid = self.kwargs["doid"]
+
+        qs = (
+            NDSRank.objects.filter(doid=doid)
+            .select_related("protein")
+            .annotate(
+                nds_rank=F("rank"),
+                novelty=Subquery(
+                    Novelty.objects.filter(protein=OuterRef("protein")).values("score")
+                ),
+                score=Subquery(
+                    Importance.objects.filter(
+                        protein=OuterRef("protein"), disease=doid
+                    ).values("score")
+                ),
+                target_id=Subquery(
+                    T2TC.objects.filter(protein=OuterRef("protein")).values(
+                        "target__id"
+                    )
+                ),
+                target_name=Subquery(
+                    T2TC.objects.filter(protein=OuterRef("protein")).values(
+                        "target__name"
+                    )
+                ),
+                target_fam=Subquery(
+                    T2TC.objects.filter(protein=OuterRef("protein")).values(
+                        "target__fam"
+                    )
+                ),
+                target_famext=Subquery(
+                    T2TC.objects.filter(protein=OuterRef("protein")).values(
+                        "target__famext"
+                    )
+                ),
+                target_tdl=Subquery(
+                    T2TC.objects.filter(protein=OuterRef("protein")).values(
+                        "target__tdl"
+                    )
+                ),
+                disease_id=Value(doid, output_field=django_models.CharField()),
+                protein_id=F("protein__id"),
+            )
+            .order_by(
+                "rank", "target_id"
+            )  # add target_id ordering as tiebreaker for deterministic behavior (nds_rank can have ties)
         )
-
-        doid = (
-            DiseaseMetadata.objects.filter(id=self.kwargs["disease_id"])
-            .first()
-            .tinx_disease_id
-        )
-
-        query = """
-            SELECT (tinx_novelty.score) AS novelty,
-                   (target.id)          AS target_id,
-                   (target.name)        AS target_name,
-                   (target.fam)         AS target_fam,
-                   (target.famext)      AS target_famext,
-                   (target.tdl)         AS target_tdl,
-                   (tinx_nds_rank.rank) AS nds_rank,
-                   tinx_importance.protein_id,
-                   tinx_importance.doid,
-                   tinx_importance.score,
-                   protein.id,
-                   protein.name,
-                   protein.description,
-                   protein.uniprot,
-                   protein.up_version,
-                   protein.geneid,
-                   protein.sym,
-                   protein.family,
-                   protein.dtoid,
-                   tinx_disease.doid,
-                   tinx_disease.name,
-                   tinx_disease.summary,
-                   tinx_disease.score
-            FROM
-                tinx_nds_rank
-                INNER JOIN protein ON (tinx_nds_rank.protein_id = protein.id)
-                JOIN tinx_importance ON (tinx_nds_rank.doid = tinx_importance.doid AND tinx_importance.protein_id = protein.id)
-                INNER JOIN tinx_disease ON tinx_disease.doid = tinx_nds_rank.doid
-                join t2tc on t2tc.protein_id = tinx_nds_rank.protein_id
-                join tinx_novelty on tinx_novelty.protein_id = tinx_nds_rank.protein_id
-                join target on t2tc.target_id = target.id
-            WHERE tinx_nds_rank.doid = "{0}"
-            ORDER BY nds_rank
-            LIMIT {1};
-        """.format(doid, limit)
-
-        ndsRanks = Importance.objects.raw(query)
-
-        class RawWrapper:
-            def __init__(self, rawqueryset, model):
-                self.rawQuerySet = rawqueryset
-                self.model = model
-
-            def all(self):
-                return [i for i in self.rawQuerySet]
-
-        qs = RawWrapper(ndsRanks, Importance)
 
         return qs
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        result = get_object_or_404(queryset, protein__id=kwargs["pk"])
-        serializer = self.serializer_class(result)
+        result = get_object_or_404(queryset, protein__id=kwargs["target_id"])
+        serializer = self.serializer_class(result, context={"request": request})
         return Response(serializer.data)
 
 
@@ -244,7 +245,7 @@ class ArticleViewSet(
     search_fields = ("title",)
 
     def get_queryset(self):
-        if "disease_id" in self.kwargs and "target_id" in self.kwargs:
+        if "doid" in self.kwargs and "target_id" in self.kwargs:
             queryset = PubmedArticle.objects.extra(
                 tables=["tinx_articlerank", "tinx_importance", "t2tc"],
                 where=[
@@ -255,7 +256,7 @@ class ArticleViewSet(
                     "tinx_importance.doid = %s",
                     "t2tc.target_id = %s",
                 ],
-                params=[self.kwargs["disease_id"], self.kwargs["target_id"]],
+                params=[self.kwargs["doid"], self.kwargs["target_id"]],
             )
             return queryset.all()
         else:

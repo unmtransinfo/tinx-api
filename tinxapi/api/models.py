@@ -16,6 +16,7 @@ class Disease(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         ordering = ("name",)
         db_table = "tinx_disease"
 
@@ -25,13 +26,14 @@ class Disease(models.Model):
 
 class DiseaseMetadata(models.Model):
     tcrd_model = True
-    tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
-    tinx_disease = models.ForeignKey(Disease, on_delete=models.PROTECT)
+    doid = models.CharField(max_length=255)
     num_important_targets = models.IntegerField()
+    category = models.TextField()
 
     class Meta:
+        managed = False
         db_table = "tinx_disease_metadata"
 
 
@@ -46,6 +48,7 @@ class DTO(models.Model):
     definition = models.CharField(max_length=255, db_column="def")
 
     class Meta:
+        managed = False
         db_table = "dto"
 
 
@@ -56,6 +59,7 @@ class DoParent(models.Model):
     parent_id = models.CharField(max_length=20)
 
     class Meta:
+        managed = False
         db_table = "do_parent"
 
 
@@ -70,22 +74,27 @@ class Protein(models.Model):
     geneid = models.IntegerField()
     sym = models.CharField(max_length=20)
     family = models.CharField(max_length=255)
+    chr = models.CharField(max_length=255)
+    seq = models.TextField()
     dto = models.ForeignKey(DTO, db_column="dtoid", on_delete=models.PROTECT)
+    stringid = models.CharField(max_length=15)
+    dtoclass = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "protein"
 
 
 class ProteinMetadata(models.Model):
     tcrd_model = True
-    tcrd_meta = True
 
     id = models.IntegerField(primary_key=True)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
-    num_important_targets = models.IntegerField()
+    num_important_diseases = models.IntegerField()
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "tinx_protein_metadata"
 
@@ -97,12 +106,14 @@ class Target(models.Model):
     name = models.CharField(max_length=255)
     ttype = models.CharField(max_length=255)
     tdl = models.CharField(max_length=255)
+    idg = models.SmallIntegerField()
     fam = models.CharField(max_length=255)
     famext = models.CharField(max_length=255)
     comment = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         ordering = ("id",)
         db_table = "target"
 
@@ -110,7 +121,7 @@ class Target(models.Model):
 class TinxTarget(models.Model):
     tcrd_model = True
 
-    target = models.ForeignKey(Target, primary_key=True, on_delete=models.PROTECT)
+    target = models.OneToOneField(Target, primary_key=True, on_delete=models.PROTECT)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     uniprot = models.CharField(max_length=255)
     sym = models.CharField(max_length=255)
@@ -119,6 +130,7 @@ class TinxTarget(models.Model):
     family = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         db_table = "tinx_target"
 
 
@@ -127,8 +139,10 @@ class T2TC(models.Model):
 
     target = models.OneToOneField(Target, primary_key=True, on_delete=models.PROTECT)
     protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
+    nucleic_acid_id = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = "t2tc"
 
 
@@ -140,6 +154,7 @@ class Novelty(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         db_table = "tinx_novelty"
 
 
@@ -155,17 +170,20 @@ class Importance(models.Model):
     score = models.DecimalField(max_digits=34, decimal_places=16)
 
     class Meta:
+        managed = False
         db_table = "tinx_importance"
 
 
 class Ancestor(models.Model):
-    tcrd_meta = True
+    tcrd_model = True
 
-    doid = models.CharField(max_length=255, primary_key=True)
+    id = models.AutoField(primary_key=True)
+    doid = models.CharField(max_length=255, db_index=True)
     max_ancestor = models.CharField(max_length=255)
     ancestor_path = models.CharField(max_length=255)
 
     class Meta:
+        managed = False
         db_table = "tinx_disease_ancestors"
 
 
@@ -173,12 +191,12 @@ class NDSRank(models.Model):
     tcrd_model = True
 
     id = models.IntegerField(primary_key=True)
-    importance = models.ForeignKey(
-        Importance, db_column="tinx_importance_id", on_delete=models.PROTECT
-    )
+    doid = models.CharField(max_length=20)
+    protein = models.ForeignKey(Protein, on_delete=models.PROTECT)
     rank = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = "tinx_nds_rank"
 
 
@@ -193,4 +211,5 @@ class PubmedArticle(models.Model):
     abstract = models.TextField()
 
     class Meta:
+        managed = False
         db_table = "pubmed"

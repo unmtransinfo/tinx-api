@@ -1,28 +1,19 @@
 import collections
-import urllib
 
-from api import views
 from api.models import *
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 
 class DoParentSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
 
     class Meta:
         model = DoParent
-        fields = ("id", "doid", "parent_id", "name")
+        fields = ("doid", "parent_id", "name")
 
-    def get_id(self, obj):
-        disease = DiseaseMetadata.objects.filter(tinx_disease=obj.pk).first()
-        if not disease:
-            return
-        return disease.id
-
-    def get_name(selfself, obj):
-        disease = Disease.objects.filter(doid=obj.pk).first()
+    def get_name(self, obj):
+        disease = Disease.objects.filter(doid=obj.doid).first()
         if not disease:
             return
         return disease.name
@@ -46,7 +37,6 @@ class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disease
         fields = (
-            "id",
             "doid",
             "name",
             "summary",
@@ -59,15 +49,17 @@ class DiseaseSerializer(serializers.ModelSerializer):
     def get_targets(self, obj):
         """
         Populates the `targets` field above (by name) with a hyperlink to the
-        target's diseases (e.g. /diseases/1/targets)
+        target's diseases (e.g. /diseases/DOID:0040069/targets)
 
         :param obj: The object being serialized.
         :return: A hyperlink.
         """
-        metaid = DiseaseMetadata.objects.filter(tinx_disease_id=obj.pk).first().pk
+        metadata = DiseaseMetadata.objects.filter(doid=obj.pk).first()
+        if not metadata:
+            return None
         return reverse(
             "disease-targets",
-            kwargs={"disease_id": metaid},
+            kwargs={"doid": obj.pk},
             request=self.context["request"],
         )
 
@@ -80,13 +72,13 @@ class DiseaseSerializer(serializers.ModelSerializer):
         :return: A hyperlink.
         """
         return reverse(
-            "disease-parent", kwargs={"pk": obj.pk}, request=self.context["request"]
+            "disease-parent", kwargs={"doid": obj.pk}, request=self.context["request"]
         )
 
     def get_children(self, obj):
         """
         Populates the `children` field above (by name) with a hyperlink to the
-        target's parent (e.g. /diseases/1/children)
+        target's children (e.g. /diseases/DOID:0040069/children)
 
         :param obj:
         :return:
@@ -94,7 +86,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         if "request" in self.context:
             return reverse(
                 "disease-children",
-                kwargs={"pk": obj.pk},
+                kwargs={"doid": obj.pk},
                 request=self.context["request"],
             )
 
@@ -107,7 +99,6 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
 
     doid = serializers.CharField()
     name = serializers.CharField()
-    category = serializers.CharField()
     summary = serializers.CharField()
     num_important_targets = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
@@ -127,18 +118,12 @@ class DiseaseWithMetadataSerializer(DiseaseSerializer):
         )
 
     def get_num_important_targets(self, obj):
-        return (
-            DiseaseMetadata.objects.filter(tinx_disease_id=obj.doid)
-            .first()
-            .num_important_targets
-        )
+        metadata = DiseaseMetadata.objects.filter(doid=obj.doid).first()
+        return metadata.num_important_targets if metadata else 0
 
     def get_category(self, obj):
-        ancestor = Ancestor.objects.filter(doid=obj.doid).first()
-        if not ancestor:
-            return obj.name
-        disease = Disease.objects.filter(doid=ancestor.max_ancestor).first()
-        return disease.name
+        metadata = DiseaseMetadata.objects.filter(doid=obj.doid).first()
+        return metadata.category if metadata and metadata.category else obj.name
 
 
 class TargetSerializer(serializers.Serializer):
@@ -180,11 +165,11 @@ class TargetSerializer(serializers.Serializer):
 
     def get_num_important_diseases(self, obj):
         number = ProteinMetadata.objects.filter(protein_id=obj.protein.id).first()
-        return number.num_important_targets if number else None
+        return number.num_important_diseases if number else None
 
     def get_dtoid(self, obj):
         try:
-            return obj._protein_cache.dto_id.replace("_", ":")
+            return obj._protein_cache.dto_id
         except Exception as e:
             return None
 
@@ -231,14 +216,9 @@ class TargetDiseaseSerializer(serializers.ModelSerializer):
 
     def get_articles(self, obj):
         if "request" in self.context:
-            disease_id = (
-                DiseaseMetadata.objects.filter(tinx_disease_id=obj.disease_id)
-                .first()
-                .id
-            )
             return reverse(
                 "target-disease-articles",
-                kwargs={"disease_id": disease_id, "target_id": obj.protein_id},
+                kwargs={"doid": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
@@ -273,7 +253,7 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
     nds_rank = serializers.IntegerField()
 
     class Meta:
-        model = Importance
+        model = NDSRank
         fields = ("target", "articles", "nds_rank", "importance")
 
     def get_target(self, obj):
@@ -292,19 +272,14 @@ class DiseaseTargetSerializer(serializers.ModelSerializer):
         tmp["tdl"] = obj.target_tdl
         tmp["novelty"] = obj.novelty
         tmp["sym"] = obj.protein.sym
-        tmp["dtoid"] = obj.protein.dto_id if hasattr(obj.protein, "dto_id") else None
+        tmp["dtoid"] = obj.protein.dto_id if obj.protein.dto_id else None
         return tmp
 
     def get_articles(self, obj):
         if "request" in self.context:
-            diseaseMetaId = (
-                DiseaseMetadata.objects.filter(tinx_disease_id=obj.disease_id)
-                .first()
-                .id
-            )
             return reverse(
                 "disease-target-articles",
-                kwargs={"disease_id": diseaseMetaId, "target_id": obj.protein_id},
+                kwargs={"doid": obj.disease_id, "target_id": obj.protein_id},
                 request=self.context["request"],
             )
 
@@ -325,16 +300,13 @@ class DTOSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "target", "parent", "children")
 
     def get_target(self, obj):
-        # TODO: This is not very efficient.
-        # Database values need to be changed for this to work, currently protein uses `_` not `:` as a seperator
-        # protein = obj._prefetched_objects_cache['protein'].first()
-
-        # TODO: Seems there aren't any connections between Protein and DTO tables
-        protein = Protein.objects.filter(dto=obj.id.replace(":", "_")).first()
+        protein = Protein.objects.filter(dto=obj.id).first()
 
         if protein is None:
             return None
         else:
+            from api import views
+
             queryset = (
                 views.TargetViewSet().get_queryset().filter(protein_id=protein.id)
             )

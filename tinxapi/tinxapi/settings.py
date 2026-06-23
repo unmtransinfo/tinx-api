@@ -86,16 +86,13 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     },
-    "tcrd_meta": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "metadata.sqlite3"),
-    },
     "tcrd": {
         "ENGINE": "django.db.backends.mysql",
         "HOST": secrets.tcrd["host"],
-        "NAME": "tcrd",
+        "NAME": os.environ.get("DB_NAME", "tinx"),
         "USER": secrets.tcrd["user"],
         "PASSWORD": secrets.tcrd["password"],
+        "PORT": secrets.tcrd["port"],
     },
 }
 
@@ -148,14 +145,19 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
-HAYSTACK_SOLR_URL = "http://tinx-solr:8983/solr"
+HAYSTACK_SOLR_URL = "http://solr:8983/solr"
 
 HAYSTACK_CONNECTIONS = {
     "default": {
         "ENGINE": "haystack.backends.solr_backend.SolrEngine",
-        "URL": "http://tinx-solr:8983/solr/haystack",
+        "URL": "http://solr:8983/solr/haystack",
         "INDEX_NAME": "haystack",
     },
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Silence W342 for Importance.disease: that ForeignKey uses primary_key=True as a
+# Django workaround for the composite (protein_id, doid) primary key on tinx_importance.
+# Changing it to OneToOneField would be semantically wrong (many proteins per disease).
+SILENCED_SYSTEM_CHECKS = ["fields.W342"]

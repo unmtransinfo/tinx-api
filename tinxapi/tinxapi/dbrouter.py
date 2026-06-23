@@ -8,9 +8,7 @@ class DatabaseRouter(object):
         :param hints:
         :return:
         """
-        if hasattr(model, "tcrd_meta") and model.tcrd_meta:
-            return "tcrd_meta"
-        elif hasattr(model, "tcrd_model") and model.tcrd_model:
+        if hasattr(model, "tcrd_model") and model.tcrd_model:
             return "tcrd"
         else:
             return None
@@ -44,8 +42,6 @@ class DatabaseRouter(object):
         """
         if db == "tcrd":
             return False
-        elif db == "tcrd_meta":
-            return model_name in ["proteinmetadata", "diseasemetadata"]
         elif db == "default":
             return model_name in [
                 "logentry",

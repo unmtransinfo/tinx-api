@@ -21,6 +21,58 @@ In-progress with 2026 maintenance updates, [docs/old](docs/old) has some (outdat
 
 ## Development
 
+### Launching the Dev Environment
+
+**Prerequisites:**
+
+1. Clone the [tinx-ui](https://github.com/unmtransinfo/tinx-ui) repo alongside this one (i.e. `../tinx-ui/`).
+2. Copy `.env.example` to `.env` and fill in credentials:
+   ```bash
+   cp .env.example .env
+   # edit .env — at minimum change MYSQL_ROOT_PASSWORD and DB_PASSWORD
+   ```
+3. Generate the MySQL tuning config:
+   ```bash
+   ./tune.sh
+   ```
+   This reads `DB_CPUS` and `DB_MEMORY` from `.env` and writes `mysql-tuning.cnf`.
+
+**Start all services:**
+
+```bash
+docker compose -f docker-compose-dev.yml up --build
+```
+
+This brings up four services:
+
+| Service | Description                                                                                                                                     | Default port  |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| `ui`    | Dev server for the [TIN-X UI](https://github.com/unmtransinfo/tinx-ui) (hot-reload)                                                             | 8080          |
+| `api`   | Django REST API                                                                                                                                 | 8000          |
+| `db`    | MySQL 8.0 via [`unmtransinfo/tinx_db`](https://hub.docker.com/r/unmtransinfo/tinx_db) — downloads and restores the TIN-X database on first boot | internal only |
+| `solr`  | Solr 6.6.6 search index                                                                                                                         | internal only |
+
+**First-time startup** will take a while as the `db` service downloads and restores the database dump (likely several hours).
+
+**After the database is ready**, rebuild the Solr search index:
+
+```bash
+docker compose -f docker-compose-dev.yml exec api python manage.py rebuild_index
+```
+
+If running the development version of TIN-X on another server (e.g., shishito.health.unm.edu), one can use SSH port-forwarding to access the api:
+
+```bash
+# Replace 8000 with your TINX_API_PORT
+ssh -L 8000:localhost:8000 shishito.health.unm.edu
+```
+
+Then one can go to http://localhost:8000/ to view the API in-browser.
+
+The same goes for the UI, just use `TINX_UI_HTTP_PORT` instead of 8000 above.
+
+> **Note:** The production `docker-compose.yml` is being updated and is not yet ready for use. Use `docker-compose-dev.yml` for now.
+
 ### Code Formatting with Pre-commit Hooks
 
 This project uses [pre-commit](https://pre-commit.com/) hooks to automatically format Python code with [isort](https://github.com/PyCQA/isort) and [Black](https://black.readthedocs.io/), and formats Docker Compose files with [DCLint](https://github.com/zavoloklom/docker-compose-linter/tree/main) before each commit.
@@ -38,3 +90,7 @@ You can run all pre-commit hooks manually without committing:
 ```bash
 pre-commit run --all-files
 ```
+
+## TODO:
+
+- Update dependencies in [requirements.txt](requirements.txt)
