@@ -93,6 +93,11 @@ DATABASES = {
         "USER": secrets.tcrd["user"],
         "PASSWORD": secrets.tcrd["password"],
         "PORT": secrets.tcrd["port"],
+        # Use the real database during tests instead of creating test_tinx.
+        # LiveTcrdTestRunner skips CREATE/DROP for this alias.
+        "TEST": {
+            "NAME": os.environ.get("DB_NAME", "tinx"),
+        },
     },
 }
 
@@ -161,3 +166,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Django workaround for the composite (protein_id, doid) primary key on tinx_importance.
 # Changing it to OneToOneField would be semantically wrong (many proteins per disease).
 SILENCED_SYSTEM_CHECKS = ["fields.W342"]
+
+TEST_RUNNER = "tinxapi.test_runner.LiveTcrdTestRunner"

@@ -73,6 +73,14 @@ The same goes for the UI, just use `TINX_UI_HTTP_PORT` instead of 8000 above.
 
 > **Note:** The production `docker-compose.yml` is being updated and is not yet ready for use. Use `docker-compose-dev.yml` for now.
 
+### Running tests
+
+You will first need to launch the development environment using the instructions above. Then, one can run tests with:
+
+```bash
+docker compose -f docker-compose-dev.yml exec api python manage.py test api.tests --verbosity=2
+```
+
 ### Code Formatting with Pre-commit Hooks
 
 This project uses [pre-commit](https://pre-commit.com/) hooks to automatically format Python code with [isort](https://github.com/PyCQA/isort) and [Black](https://black.readthedocs.io/), and formats Docker Compose files with [DCLint](https://github.com/zavoloklom/docker-compose-linter/tree/main) before each commit.
