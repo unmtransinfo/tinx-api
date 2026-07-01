@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from api.filters import *
 from api.models import *
 from api.models import Importance, NDSRank, Novelty

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Integration tests for the TIN-X API.
 
@@ -10,8 +9,6 @@ endpoints so no fixture data is required; the tests validate response
 Run with:
     docker compose -f docker-compose-dev.yml exec api python manage.py test api
 """
-
-from __future__ import unicode_literals
 
 from django.test import TestCase
 from rest_framework.test import APIClient
