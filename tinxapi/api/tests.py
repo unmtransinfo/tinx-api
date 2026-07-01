@@ -70,6 +70,17 @@ DISEASE_CHILD_FIELDS = frozenset({"doid", "parent_id", "name"})
 # ---------------------------------------------------------------------------
 
 
+class LiveApiTestCase(TestCase):
+    """
+    Base class for every test in this module. Django 2.2+ restricts each
+    TestCase to the `default` database alias unless `databases` says
+    otherwise; these tests hit the live `tcrd` (MySQL) alias through the API
+    views, so it must be explicitly allowed.
+    """
+
+    databases = {"default", "tcrd"}
+
+
 class _ArticlePairDiscoveryMixin:
     """
     Discovers a (doid, target_id) pair that exists in the live database.
@@ -115,7 +126,7 @@ class _ArticlePairDiscoveryMixin:
 # ---------------------------------------------------------------------------
 
 
-class ArticleListTests(TestCase):
+class ArticleListTests(LiveApiTestCase):
     """Tests for the article list endpoint."""
 
     def setUp(self):
@@ -169,7 +180,7 @@ class ArticleListTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class ArticleDetailTests(TestCase):
+class ArticleDetailTests(LiveApiTestCase):
     """Tests for the article detail endpoint."""
 
     valid_article_id = None
@@ -218,7 +229,7 @@ class ArticleDetailTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class ArticleFilterTests(TestCase):
+class ArticleFilterTests(LiveApiTestCase):
     """Tests for filter and DRF search query parameters on /articles/."""
 
     def setUp(self):
@@ -272,7 +283,7 @@ class ArticleFilterTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseTargetArticleTests(_ArticlePairDiscoveryMixin, TestCase):
+class DiseaseTargetArticleTests(_ArticlePairDiscoveryMixin, LiveApiTestCase):
     """Tests for the disease→target articles endpoint."""
 
     @classmethod
@@ -316,7 +327,7 @@ class DiseaseTargetArticleTests(_ArticlePairDiscoveryMixin, TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TargetDiseaseArticleTests(_ArticlePairDiscoveryMixin, TestCase):
+class TargetDiseaseArticleTests(_ArticlePairDiscoveryMixin, LiveApiTestCase):
     """Tests for the target→disease articles endpoint."""
 
     @classmethod
@@ -375,7 +386,7 @@ class TargetDiseaseArticleTests(_ArticlePairDiscoveryMixin, TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseListTests(TestCase):
+class DiseaseListTests(LiveApiTestCase):
     """Tests for the disease list endpoint."""
 
     def setUp(self):
@@ -429,7 +440,7 @@ class DiseaseListTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseDetailTests(TestCase):
+class DiseaseDetailTests(LiveApiTestCase):
     """Tests for the disease detail endpoint."""
 
     valid_doid = None
@@ -474,7 +485,7 @@ class DiseaseDetailTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseChildrenAndParentTests(TestCase):
+class DiseaseChildrenAndParentTests(LiveApiTestCase):
     """Tests for the disease children/parent sub-resource endpoints."""
 
     valid_doid = None
@@ -531,7 +542,7 @@ class DiseaseChildrenAndParentTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseFilterTests(TestCase):
+class DiseaseFilterTests(LiveApiTestCase):
     """Tests for filter and DRF search query parameters on /diseases/."""
 
     sample_doid = None
@@ -601,7 +612,7 @@ class DiseaseFilterTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TargetListTests(TestCase):
+class TargetListTests(LiveApiTestCase):
     """Tests for the target list endpoint."""
 
     def setUp(self):
@@ -655,7 +666,7 @@ class TargetListTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TargetDetailTests(TestCase):
+class TargetDetailTests(LiveApiTestCase):
     """Tests for the target detail endpoint."""
 
     valid_target_id = None
@@ -704,7 +715,7 @@ class TargetDetailTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TargetFilterTests(TestCase):
+class TargetFilterTests(LiveApiTestCase):
     """Tests for filter and DRF search query parameters on /targets/."""
 
     targets_sample = []
@@ -835,7 +846,7 @@ class TargetFilterTests(TestCase):
 # ---------------------------------------------------------------------------
 
 
-class DiseaseTargetsTests(_ArticlePairDiscoveryMixin, TestCase):
+class DiseaseTargetsTests(_ArticlePairDiscoveryMixin, LiveApiTestCase):
     """Tests for the disease→targets association endpoint."""
 
     @classmethod
@@ -902,7 +913,7 @@ class DiseaseTargetsTests(_ArticlePairDiscoveryMixin, TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TargetDiseasesTests(_ArticlePairDiscoveryMixin, TestCase):
+class TargetDiseasesTests(_ArticlePairDiscoveryMixin, LiveApiTestCase):
     """Tests for the target→diseases association endpoint."""
 
     @classmethod
@@ -958,7 +969,7 @@ class TargetDiseasesTests(_ArticlePairDiscoveryMixin, TestCase):
 # ---------------------------------------------------------------------------
 
 
-class SearchTests(TestCase):
+class SearchTests(LiveApiTestCase):
     """
     Tests for the /search/ endpoint. This queries the live Solr instance
     directly (via haystack), rather than the MySQL-backed views used
