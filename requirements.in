@@ -1,0 +1,26 @@
+# Top-level runtime dependencies only. Transitive dependencies are locked
+# into requirements.txt by pip-compile (from pip-tools) -- do not add them
+# here directly.
+#
+# Regenerate requirements.txt after editing this file:
+#   pip-compile requirements.in
+#
+# To bump a single package (and let pip-compile resolve compatible versions
+# of anything it pulls in) rather than re-resolving everything at once:
+#   pip-compile --upgrade-package <name>==<version> requirements.in
+
+Django==1.11.17
+djangorestframework==3.11.2
+django-filter==1.1.0
+django-haystack==2.8.1
+pysolr==3.9.0
+mysqlclient==2.2.4
+django-cors-headers==2.4.0
+
+# Used by the DRF browsable API and the coreapi-based /docs/ endpoint
+# (api/urls.py, include_docs_urls). Planned for removal once the docs
+# endpoint moves to drf-spectacular (see the Django-5 upgrade plan).
+coreapi==2.3.3
+coreschema==0.0.4
+Markdown==2.6.11
+Pygments==2.2.0

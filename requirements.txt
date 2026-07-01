@@ -1,11 +1,18 @@
+# Hand-transcribed from requirements.in for this commit -- NOT yet run
+# through `pip-compile`. Please regenerate for real inside the api
+# container (where the target Python/libmysqlclient toolchain actually
+# lives) and diff against this file:
+#
+#   docker compose -f docker-compose-dev.yml exec api pip install pip-tools
+#   docker compose -f docker-compose-dev.yml exec api pip-compile requirements.in
+#
 Django==1.11.17
 django-filter==1.1.0
-djangorestframework==3.8.2
-djangorestframework-filters==0.10.2
-django-haystack
-mysqlclient==1.3.13
+djangorestframework==3.11.2
+django-haystack==2.8.1
+mysqlclient==2.2.4
 pytz==2018.5
-pysolr
+pysolr==3.9.0
 certifi==2018.8.24
 chardet==3.0.4
 coreapi==2.3.3
