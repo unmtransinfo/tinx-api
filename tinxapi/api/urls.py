@@ -23,10 +23,10 @@ class DocumentedRouter(routers.DefaultRouter):
 
 router = DocumentedRouter()
 
-router.register(r"diseases", views.DiseaseViewSet, base_name="disease")
-router.register(r"targets", views.TargetViewSet, base_name="target")
-router.register(r"articles", views.ArticleViewSet, base_name="article")
-router.register(r"dto", views.DTOViewSet, base_name="dto")
+router.register(r"diseases", views.DiseaseViewSet, basename="disease")
+router.register(r"targets", views.TargetViewSet, basename="target")
+router.register(r"articles", views.ArticleViewSet, basename="article")
+router.register(r"dto", views.DTOViewSet, basename="dto")
 
 # TODO: Can we use ViewSet actions to clean up these urlpatterns?
 urlpatterns = [
