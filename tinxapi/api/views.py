@@ -129,6 +129,8 @@ class TargetDiseasesViewSet(
             .filter(id=self.kwargs["target_id"])
             .first()
         )
+        if protein is None:
+            return Importance.objects.none()
         return protein._prefetched_objects_cache["importance"].all()
 
     def retrieve(self, request, *args, **kwargs):
