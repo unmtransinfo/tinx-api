@@ -133,8 +133,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -174,3 +172,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 SILENCED_SYSTEM_CHECKS = ["fields.W342"]
 
 TEST_RUNNER = "tinxapi.test_runner.LiveTcrdTestRunner"
+
+# Required as of Django 3.2. Every model in this project is `managed = False`
+# with an explicitly declared primary key, so this has no actual effect --
+# it just silences Django's system check warning.
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

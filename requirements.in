@@ -9,13 +9,13 @@
 # of anything it pulls in) rather than re-resolving everything at once:
 #   pip-compile --upgrade-package <name>==<version> requirements.in
 
-Django==2.2.28
-djangorestframework==3.13.1
-django-filter==21.1
+Django==3.2.25
+djangorestframework==3.14.0
+django-filter==23.5
 django-haystack==3.2.1
 pysolr==3.9.0
 mysqlclient==2.2.4
-django-cors-headers==2.4.0
+django-cors-headers==3.13.0
 
 # OpenAPI schema + interactive docs for /docs/ (replaced the coreapi-based
 # rest_framework.documentation.include_docs_urls, which is only installable

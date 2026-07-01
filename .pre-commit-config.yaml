@@ -8,7 +8,7 @@ repos:
     rev: 26.3.1
     hooks:
       - id: black
-        args: [--target-version, py38]
+        args: [--target-version, py310]
   - repo: https://github.com/docker-compose-linter/pre-commit-dclint
     rev: v3.1.0
     hooks:
