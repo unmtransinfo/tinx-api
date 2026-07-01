@@ -14,7 +14,14 @@ djangorestframework==3.11.2
 django-filter==1.1.0
 django-haystack==2.8.1
 pysolr==3.9.0
-mysqlclient==2.2.4
+# NOTE: mysqlclient>=2.0 crashes Django 1.11's mysql backend on every new
+# connection (KeyError: <class 'str'> in get_new_connection(), which does
+# `conn.encoders[SafeText] = conn.encoders[six.text_type]` -- mysqlclient 2.x
+# no longer populates that encoders entry). Django dropped this code path
+# entirely in 2.0, so mysqlclient 2.x is safe from Stage 1 onward; 1.4.6 is
+# the last 1.x release (still supports Python 3.8) and is a required pin
+# while Django stays on 1.11.
+mysqlclient==1.4.6
 django-cors-headers==2.4.0
 
 # Used by the DRF browsable API and the coreapi-based /docs/ endpoint
