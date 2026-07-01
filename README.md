@@ -81,6 +81,22 @@ You will first need to launch the development environment using the instructions
 docker compose -f docker-compose-dev.yml exec api python manage.py test api.tests --verbosity=2
 ```
 
+### Upgrading Dependencies
+
+If one finds they need to update dependencies ([requirements.txt](requirements.txt)), the following steps can be followed:
+
+1. If a new package is required, add it to [requirements.in](requirements.in)
+2. Setup and activate a Python (v3.12) virtual environment. For example, with conda use:
+   ```
+   conda create -n tinx-api python=3.12 && conda activate tinx-api
+   ```
+3. Install pip-tools: `pip install pip-tools`
+4. Compile new requirements: `pip-compile --upgrade`
+   - If there are issues with `mysqlclient` you may need to install some system-deps, refer to: https://pypi.org/project/mysqlclient/
+5. (Optional) Test the update locally in your environment: `pip-sync`
+
+_Note_: If you need to update the Python version, make sure to adjust the steps above accordingly and to update the Python image in the [Dockerfile](Dockerfile).
+
 ### Code Formatting with Pre-commit Hooks
 
 This project uses [pre-commit](https://pre-commit.com/) hooks to automatically format Python code with [isort](https://github.com/PyCQA/isort) and [Black](https://black.readthedocs.io/), and formats Docker Compose files with [DCLint](https://github.com/zavoloklom/docker-compose-linter/tree/main) before each commit.
