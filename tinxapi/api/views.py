@@ -59,7 +59,7 @@ class DiseaseViewSet(
     pagination_class = RestrictedPagination
     serializer_class = DiseaseWithMetadataSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = DiseaseFilter
+    filterset_class = DiseaseFilter
     search_fields = ("^name",)
     lookup_field = "doid"
 
@@ -100,7 +100,7 @@ class TargetViewSet(
     serializer_class = TargetSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
-    filter_class = TargetFilter
+    filterset_class = TargetFilter
     lookup_field = "target_id"
 
     def get_queryset(self):
@@ -156,7 +156,7 @@ class DiseaseTargetsViewSet(
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
-    filter_class = DiseaseTargetFilter
+    filterset_class = DiseaseTargetFilter
 
     def get_queryset(self):
         """
@@ -241,7 +241,7 @@ class ArticleViewSet(
     serializer_class = PubmedArticleSerializer
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = PubmedArticleFilter
+    filterset_class = PubmedArticleFilter
     search_fields = ("title",)
 
     def get_queryset(self):
@@ -282,7 +282,7 @@ class DTOViewSet(
     queryset = DTO.objects.prefetch_related("protein_set").all()
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = DTOFilter
+    filterset_class = DTOFilter
     search_fields = ("name",)
 
     @action(detail=True)
