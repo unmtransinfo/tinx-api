@@ -1,7 +1,7 @@
 from api import views
-from django.conf.urls import include, url
+from django.urls import path, re_path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import routers
-from rest_framework.documentation import include_docs_urls
 
 
 class ApiRootView(routers.APIRootView):
@@ -30,40 +30,45 @@ router.register(r"dto", views.DTOViewSet, basename="dto")
 
 # TODO: Can we use ViewSet actions to clean up these urlpatterns?
 urlpatterns = [
-    url(r"^docs/", include_docs_urls(title="TIN-X REST API")),
+    path("docs/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="docs",
+    ),
     # GET /targets/:target_id/diseases
-    url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/$",
+    path(
+        "targets/<int:target_id>/diseases/",
         views.TargetDiseasesViewSet.as_view({"get": "list"}),
         name="target-diseases",
     ),
     # GET /targets/:target_id/diseases/:doid
-    url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<doid>[^/]+)/$",
+    path(
+        "targets/<int:target_id>/diseases/<str:doid>/",
         views.TargetDiseasesViewSet.as_view({"get": "retrieve"}),
         name="target-diseases",
     ),
     # GET /diseases/:doid/targets
-    url(
-        r"^diseases/(?P<doid>[^/]+)/targets/$",
+    path(
+        "diseases/<str:doid>/targets/",
         views.DiseaseTargetsViewSet.as_view({"get": "list"}),
         name="disease-targets",
     ),
     # GET /diseases/:doid/targets/:target_id
-    url(
-        r"^diseases/(?P<doid>[^/]+)/targets/(?P<target_id>[0-9]+)$",
+    path(
+        "diseases/<str:doid>/targets/<int:target_id>",
         views.DiseaseTargetsViewSet.as_view({"get": "retrieve"}),
         name="disease-targets",
     ),
-    url(
-        r"^diseases/(?P<doid>.+)/targets/(?P<target_id>[0-9]+)/articles$",
+    path(
+        "diseases/<path:doid>/targets/<int:target_id>/articles",
         views.ArticleViewSet.as_view({"get": "list"}),
         name="disease-target-articles",
     ),
-    url(
-        r"^targets/(?P<target_id>[0-9]+)/diseases/(?P<doid>.+)/articles$",
+    path(
+        "targets/<int:target_id>/diseases/<path:doid>/articles",
         views.ArticleViewSet.as_view({"get": "list"}),
         name="target-disease-articles",
     ),
-    url(r"^search/", views.Search.as_view(), name="search-api"),
+    re_path(r"^search/", views.Search.as_view(), name="search-api"),
 ] + router.urls

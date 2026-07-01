@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "haystack",
     "rest_framework",
+    "drf_spectacular",
     "api.apps.ApiConfig",
     "django_filters",
     "corsheaders",
@@ -148,6 +149,11 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 5,
     "MAX_LIMIT": 6,
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "TIN-X REST API",
 }
 
 HAYSTACK_SOLR_URL = "http://solr:8983/solr"

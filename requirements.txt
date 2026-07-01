@@ -1,27 +1,27 @@
 # Hand-transcribed from requirements.in for this commit -- NOT yet run
-# through `pip-compile`. Please regenerate for real inside the api
-# container (where the target Python/libmysqlclient toolchain actually
-# lives) and diff against this file:
+# through `pip-compile`. drf-spectacular's transitive tree (jsonschema and
+# its own dependencies in particular) is new and more complex than the
+# coreapi set it replaces, so this file is a best-effort starting point,
+# not authoritative. Please regenerate for real inside the api container
+# before testing this stage, and diff against what's here:
 #
 #   docker compose -f docker-compose-dev.yml exec api pip install pip-tools
 #   docker compose -f docker-compose-dev.yml exec api pip-compile requirements.in
 #
-Django==1.11.17
-django-filter==1.1.0
-djangorestframework==3.11.2
-django-haystack==2.8.1
-mysqlclient==1.4.6
+Django==2.2.28
+django-filter==21.1
+djangorestframework==3.13.1
+django-haystack==3.2.1
+mysqlclient==2.2.4
 pytz==2018.5
 pysolr==3.9.0
-certifi==2018.8.24
-chardet==3.0.4
-coreapi==2.3.3
-coreschema==0.0.4
-idna==2.7
-itypes==1.1.0
-Jinja2==2.10
-Markdown==2.6.11
-MarkupSafe==1.1.1
-Pygments==2.2.0
-requests==2.19.1
 django-cors-headers==2.4.0
+
+drf-spectacular==0.29.0
+PyYAML==6.0.1
+uritemplate==4.1.1
+jsonschema==4.17.3
+inflection==0.5.1
+
+Markdown==2.6.11
+Pygments==2.2.0
