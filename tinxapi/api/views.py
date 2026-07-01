@@ -125,13 +125,12 @@ class TargetDiseasesViewSet(
     def get_queryset(self):
         protein = (
             Protein.objects.prefetch_related("importance_set")
-            .prefetch_related()
             .filter(id=self.kwargs["target_id"])
             .first()
         )
         if protein is None:
             return Importance.objects.none()
-        return protein._prefetched_objects_cache["importance"].all()
+        return protein.importance_set.all()
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
