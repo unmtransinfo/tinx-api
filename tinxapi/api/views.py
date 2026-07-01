@@ -212,7 +212,6 @@ class DiseaseTargetsViewSet(
                     )
                 ),
                 disease_id=Value(doid, output_field=django_models.CharField()),
-                protein_id=F("protein__id"),
             )
             .order_by(
                 "rank", "target_id"
