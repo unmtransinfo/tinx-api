@@ -169,7 +169,7 @@ class TargetSerializer(serializers.Serializer):
 
     def get_dtoid(self, obj):
         try:
-            return obj._protein_cache.dto_id
+            return obj.protein.dto_id
         except Exception as e:
             return None
 
