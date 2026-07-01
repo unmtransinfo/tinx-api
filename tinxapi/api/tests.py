@@ -551,7 +551,7 @@ class DiseaseFilterTests(TestCase):
         self.client = APIClient()
 
     def _skip_if_no_sample(self):
-        if self.sample_doid is None:
+        if self.sample_doid is None or self.sample_name is None:
             self.skipTest("No diseases found in the live database")
 
     def _assert_valid_list_response(self, response):
@@ -569,9 +569,12 @@ class DiseaseFilterTests(TestCase):
 
     def test_search_param_returns_valid_response(self):
         self._skip_if_no_sample()
-        # The full name is used (rather than a short prefix) so the sample
-        # disease is virtually guaranteed to be among the (small) match set.
-        response = self.client.get("/diseases/", {"search": self.sample_name})
+        # DRF's SearchFilter splits the search value on whitespace (after
+        # replacing commas with spaces) and requires every resulting term to
+        # match, so a multi-word search value can never satisfy a single
+        # "^name" (startswith) field. Use just the name's first token.
+        first_word = self.sample_name.replace(",", " ").split()[0]
+        response = self.client.get("/diseases/", {"search": first_word, "limit": 100})
         self._assert_valid_list_response(response)
         doids = {d["doid"] for d in response.data["results"]}
         self.assertIn(self.sample_doid, doids)
