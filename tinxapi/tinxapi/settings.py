@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "haystack",
     "rest_framework",
+    "drf_spectacular",
     "api.apps.ApiConfig",
     "django_filters",
     "corsheaders",
@@ -93,6 +94,11 @@ DATABASES = {
         "USER": secrets.tcrd["user"],
         "PASSWORD": secrets.tcrd["password"],
         "PORT": secrets.tcrd["port"],
+        # Use the real database during tests instead of creating test_tinx.
+        # LiveTcrdTestRunner skips CREATE/DROP for this alias.
+        "TEST": {
+            "NAME": os.environ.get("DB_NAME", "tinx"),
+        },
     },
 }
 
@@ -127,8 +133,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -143,6 +147,11 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 5,
     "MAX_LIMIT": 6,
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "TIN-X REST API",
 }
 
 HAYSTACK_SOLR_URL = "http://solr:8983/solr"
@@ -161,3 +170,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Django workaround for the composite (protein_id, doid) primary key on tinx_importance.
 # Changing it to OneToOneField would be semantically wrong (many proteins per disease).
 SILENCED_SYSTEM_CHECKS = ["fields.W342"]
+
+TEST_RUNNER = "tinxapi.test_runner.LiveTcrdTestRunner"
+
+# Required as of Django 3.2. Every model in this project is `managed = False`
+# with an explicitly declared primary key, so this has no actual effect --
+# it just silences Django's system check warning.
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

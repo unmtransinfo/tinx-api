@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from api.filters import *
 from api.models import *
 from api.models import Importance, NDSRank, Novelty
@@ -9,13 +6,13 @@ from api.serializers import *
 from django.db import models as django_models
 from django.db.models import F, OuterRef, Subquery, Value
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from haystack.inputs import AltParser
 from haystack.query import SearchQuerySet
 from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_filters.backends import DjangoFilterBackend
 
 # Create your views here.
 
@@ -59,7 +56,7 @@ class DiseaseViewSet(
     pagination_class = RestrictedPagination
     serializer_class = DiseaseWithMetadataSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = DiseaseFilter
+    filterset_class = DiseaseFilter
     search_fields = ("^name",)
     lookup_field = "doid"
 
@@ -100,7 +97,7 @@ class TargetViewSet(
     serializer_class = TargetSerializer
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
-    filter_class = TargetFilter
+    filterset_class = TargetFilter
     lookup_field = "target_id"
 
     def get_queryset(self):
@@ -125,11 +122,12 @@ class TargetDiseasesViewSet(
     def get_queryset(self):
         protein = (
             Protein.objects.prefetch_related("importance_set")
-            .prefetch_related()
             .filter(id=self.kwargs["target_id"])
             .first()
         )
-        return protein._prefetched_objects_cache["importance"].all()
+        if protein is None:
+            return Importance.objects.none()
+        return protein.importance_set.all()
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -155,7 +153,7 @@ class DiseaseTargetsViewSet(
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ("^protein__sym", "^target__name")
-    filter_class = DiseaseTargetFilter
+    filterset_class = DiseaseTargetFilter
 
     def get_queryset(self):
         """
@@ -210,7 +208,6 @@ class DiseaseTargetsViewSet(
                     )
                 ),
                 disease_id=Value(doid, output_field=django_models.CharField()),
-                protein_id=F("protein__id"),
             )
             .order_by(
                 "rank", "target_id"
@@ -241,7 +238,7 @@ class ArticleViewSet(
     serializer_class = PubmedArticleSerializer
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = PubmedArticleFilter
+    filterset_class = PubmedArticleFilter
     search_fields = ("title",)
 
     def get_queryset(self):
@@ -282,7 +279,7 @@ class DTOViewSet(
     queryset = DTO.objects.prefetch_related("protein_set").all()
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_class = DTOFilter
+    filterset_class = DTOFilter
     search_fields = ("name",)
 
     @action(detail=True)

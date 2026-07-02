@@ -1,5 +1,4 @@
-# TODO: will need to upgrade from python 3.8 (it is no longer supported)
-FROM python:3.8-bullseye
+FROM python:3.12-bookworm
 ENV PYTHONUNBUFFERED=1
 
 RUN mkdir /tinx

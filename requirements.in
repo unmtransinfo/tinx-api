@@ -1,0 +1,35 @@
+# Top-level runtime dependencies only. Transitive dependencies are locked
+# into requirements.txt by pip-compile (from pip-tools) -- do not add them
+# here directly.
+#
+# Regenerate requirements.txt after editing this file:
+#   pip-compile requirements.in
+#
+# To bump a single package (and let pip-compile resolve compatible versions
+# of anything it pulls in) rather than re-resolving everything at once:
+#   pip-compile --upgrade-package <name>==<version> requirements.in
+
+Django==5.2.15
+djangorestframework==3.17.1
+django-filter==25.2
+django-haystack==3.4.0
+# 3.9.0 also imported pkg_resources at module load (same setuptools>=82
+# issue as django-haystack above) -- 3.10.0 dropped it upstream, confirmed
+# by inspecting the sdist directly, and has no Python floor.
+pysolr==3.10.0
+mysqlclient==2.2.8
+django-cors-headers==4.9.0
+
+# OpenAPI schema + interactive docs for /docs/ (replaced the coreapi-based
+# rest_framework.documentation.include_docs_urls, which is only installable
+# on Django 1.11 -- drf-spectacular requires Django>=2.2).
+drf-spectacular
+
+# Used by the DRF browsable API's optional docstring rendering.
+Markdown==2.6.11
+# 2.2.0 (and every release through at least 2.15.0) imports pkg_resources
+# eagerly via a top-level `from pygments.plugin import find_plugin_lexers`
+# in pygments/lexers/__init__.py (same setuptools>=82 issue) -- 2.20.0 (the
+# current latest) dropped it entirely, confirmed by inspecting every .py
+# file in the wheel directly.
+Pygments==2.20.0
