@@ -117,4 +117,5 @@ pre-commit run --all-files
 
 ## TODO:
 
-- Update dependencies in [requirements.txt](requirements.txt)
+- Create GitHub actions workflow to publish built API image to DockerHub
+- Update [docker-compose.yml](docker-compose.yml), remove unnecessary prod dependencies (certbot, nginx)
