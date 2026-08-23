@@ -26,9 +26,9 @@ In-progress with 2026 maintenance updates, [docs/old](docs/old) has some (outdat
 **Prerequisites:**
 
 1. Clone the [tinx-ui](https://github.com/unmtransinfo/tinx-ui) repo alongside this one (i.e. `../tinx-ui/`).
-2. Copy `.env.example` to `.env` and fill in credentials:
+2. Copy `.env.dev.example` to `.env` and fill in credentials:
    ```bash
-   cp .env.example .env
+   cp .env.dev.example .env
    # edit .env — at minimum change MYSQL_ROOT_PASSWORD and DB_PASSWORD
    ```
 3. Generate the MySQL tuning config:
@@ -115,14 +115,14 @@ pre-commit run --all-files
 
 ## Production / Deployment
 
-`docker-compose.yml` mirrors `docker-compose-dev.yml`'s `db`/`api`/`solr` services (same
-images, healthchecks, and DB tuning), plus a `ui` service that builds the UI's static
-files straight onto the host instead of running a dev server. Set up the same way as dev:
-copy [.env.example](.env.example) to `.env` and fill it in, then run `./tune.sh` to
-generate `mysql-tuning.cnf`. Then bring it up:
+`docker-compose.prod.yml` mirrors `docker-compose-dev.yml`'s `db`/`api`/`solr` services
+(same images, healthchecks, and DB tuning), plus a `ui` service that builds the UI's
+static files straight onto the host instead of running a dev server. Set up the same way
+as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run
+`./tune.sh` to generate `mysql-tuning.cnf`. Then bring it up:
 
 ```bash
-docker compose up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 ```
 
 TLS termination and reverse proxying to `api.newdrugtargets.org` / `newdrugtargets.org`
@@ -135,5 +135,5 @@ ground before changes go to production.
 After the database is ready, rebuild the Solr search index the same way as in dev:
 
 ```bash
-docker compose exec api python manage.py rebuild_index
+docker compose -f docker-compose.prod.yml exec api python manage.py rebuild_index
 ```

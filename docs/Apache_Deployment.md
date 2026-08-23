@@ -1,6 +1,6 @@
 # Apache Deployment
 
-`docker-compose.yml` no longer runs nginx or certbot. TLS termination and reverse
+`docker-compose.prod.yml` no longer runs nginx or certbot. TLS termination and reverse
 proxying are handled by a host-level Apache, outside of Docker and outside this
 repo — `api` only binds to `127.0.0.1:${TINX_API_PORT}`, and `ui` builds its static
 files straight into `/var/www/tinx-ui` on the host, for Apache to serve directly.
