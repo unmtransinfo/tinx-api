@@ -71,8 +71,6 @@ Then one can go to http://localhost:8000/ to view the API in-browser.
 
 The same goes for the UI, just use `TINX_UI_HTTP_PORT` instead of 8000 above.
 
-> **Note:** The production `docker-compose.yml` is being updated and is not yet ready for use. Use `docker-compose-dev.yml` for now.
-
 ### Running tests
 
 You will first need to launch the development environment using the instructions above. Then, one can run tests with:
@@ -115,7 +113,27 @@ You can run all pre-commit hooks manually without committing:
 pre-commit run --all-files
 ```
 
-## TODO:
+## Production / Deployment
 
-- Create GitHub actions workflow to publish built API image to DockerHub
-- Update [docker-compose.yml](docker-compose.yml), remove unnecessary prod dependencies (certbot, nginx)
+`docker-compose.yml` mirrors `docker-compose-dev.yml`'s `db`/`api`/`solr` services (same
+images, healthchecks, and DB tuning), plus a `ui` service that builds the UI's static
+files straight onto the host instead of running a dev server. Set up the same way as dev:
+copy [.env.example](.env.example) to `.env` and fill it in, then run `./tune.sh` to
+generate `mysql-tuning.cnf`. Then bring it up:
+
+```bash
+docker compose up --build -d
+```
+
+TLS termination and reverse proxying to `api.newdrugtargets.org` / `newdrugtargets.org`
+are handled by a host-level Apache outside of Docker, not by a container in this repo —
+`api` only binds to `127.0.0.1:${TINX_API_PORT}`, and `ui` builds its static files into
+`/var/www/tinx-ui` on the host. See [docs/Apache_Deployment.md](docs/Apache_Deployment.md)
+for the Apache config, including the `shishito.health.unm.edu` setup used as a testing
+ground before changes go to production.
+
+After the database is ready, rebuild the Solr search index the same way as in dev:
+
+```bash
+docker compose exec api python manage.py rebuild_index
+```

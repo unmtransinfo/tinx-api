@@ -11,7 +11,5 @@ tcrd_subset.sql.gz
 *.sqlite3
 
 .env
-db
-./certbot_logs
 
 mysql-tuning.cnf
