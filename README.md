@@ -40,7 +40,7 @@ In-progress with 2026 maintenance updates, [docs/old](docs/old) has some (outdat
 **Start all services:**
 
 ```bash
-docker compose -f docker-compose-dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 This brings up four services:
@@ -57,7 +57,7 @@ This brings up four services:
 **After the database is ready**, rebuild the Solr search index:
 
 ```bash
-docker compose -f docker-compose-dev.yml exec api python manage.py rebuild_index
+docker compose -f docker-compose.dev.yml exec api python manage.py rebuild_index
 ```
 
 If running the development version of TIN-X on another server (e.g., shishito.health.unm.edu), one can use SSH port-forwarding to access the api:
@@ -76,7 +76,7 @@ The same goes for the UI, just use `TINX_UI_HTTP_PORT` instead of 8000 above.
 You will first need to launch the development environment using the instructions above. Then, one can run tests with:
 
 ```bash
-docker compose -f docker-compose-dev.yml exec api python manage.py test api.tests --verbosity=2
+docker compose -f docker-compose.dev.yml exec api python manage.py test api.tests --verbosity=2
 ```
 
 ### Upgrading Dependencies
@@ -115,7 +115,7 @@ pre-commit run --all-files
 
 ## Production / Deployment
 
-`docker-compose.prod.yml` mirrors `docker-compose-dev.yml`'s `db`/`api`/`solr` services
+`docker-compose.prod.yml` mirrors `docker-compose.dev.yml`'s `db`/`api`/`solr` services
 (same images, healthchecks, and DB tuning), plus a `ui` service that builds the UI's
 static files straight onto the host instead of running a dev server. Set up the same way
 as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run
