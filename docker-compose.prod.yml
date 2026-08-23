@@ -9,9 +9,6 @@ services:
       - .env
     networks:
       - backend
-    # don't need to expose ports here, but it may be convenient to access the db from the localhost rather than having to docker exec into the container
-    ports:
-      - "127.0.0.1:${DB_HOST_PORT}:3306"
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "mysql -u$$DB_USER -p$$DB_PASSWORD -e 'SELECT 1' $$MYSQL_DATABASE" ]
