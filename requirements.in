@@ -26,7 +26,7 @@ django-cors-headers==4.9.0
 drf-spectacular
 
 # Used by the DRF browsable API's optional docstring rendering.
-Markdown==2.6.11
+Markdown==3.10.3
 # 2.2.0 (and every release through at least 2.15.0) imports pkg_resources
 # eagerly via a top-level `from pygments.plugin import find_plugin_lexers`
 # in pygments/lexers/__init__.py (same setuptools>=82 issue) -- 2.20.0 (the
