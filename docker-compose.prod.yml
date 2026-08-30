@@ -23,8 +23,7 @@ services:
           cpus: "${DB_CPUS}"
           memory: "${DB_MEMORY}"
   api:
-    build:
-      context: .
+    image: unmtransinfo/tinx_api:latest
     depends_on:
       db:
         condition: service_healthy
