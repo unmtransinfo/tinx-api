@@ -116,14 +116,19 @@ pre-commit run --all-files
 ## Production / Deployment
 
 `docker-compose.prod.yml` mirrors `docker-compose.dev.yml`'s `db`/`api`/`solr` services
-(same images, healthchecks, and DB tuning), plus a `ui` service that builds the UI's
-static files straight onto the host instead of running a dev server. Set up the same way
-as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run
-`./tune.sh` to generate `mysql-tuning.cnf`. Then bring it up:
+(same healthchecks and DB tuning), but pulls `api` and `ui` from Docker Hub
+(`unmtransinfo/tinx_api`, `unmtransinfo/tinx_ui`) instead of building locally.
+
+Set up the same way as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run `./tune.sh` to generate `mysql-tuning.cnf`.
+
+Then bring it up:
 
 ```bash
-docker compose -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
+
+(Re-run both any time you want to pick up a new `:latest` build — plain `up -d` won't re-pull images on its own.)
 
 TLS termination and reverse proxying to `api.newdrugtargets.org` / `newdrugtargets.org`
 are handled by a host-level Apache outside of Docker, not by a container in this repo —
