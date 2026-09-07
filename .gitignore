@@ -10,6 +10,8 @@ tcrd_subset.sql.gz
 
 *.sqlite3
 
+/tinxapi/staticfiles
+
 .env
 
 mysql-tuning.cnf

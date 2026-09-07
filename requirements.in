@@ -20,6 +20,11 @@ pysolr==3.10.0
 mysqlclient==2.2.8
 django-cors-headers==4.9.0
 
+# Serves collected static files (DRF browsable API's CSS/JS) directly from
+# the app process -- we run manage.py runserver in prod with no separate
+# web server/nginx in front to serve /static/ itself.
+whitenoise==6.11.0
+
 # OpenAPI schema + interactive docs for /docs/ (replaced the coreapi-based
 # rest_framework.documentation.include_docs_urls, which is only installable
 # on Django 1.11 -- drf-spectacular requires Django>=2.2).

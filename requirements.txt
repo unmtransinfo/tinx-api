@@ -74,6 +74,8 @@ uritemplate==4.2.0
     # via drf-spectacular
 urllib3==2.7.0
     # via requests
+whitenoise==6.11.0
+    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
