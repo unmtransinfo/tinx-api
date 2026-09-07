@@ -10,8 +10,8 @@ tcrd_subset.sql.gz
 
 *.sqlite3
 
+/tinxapi/staticfiles
+
 .env
-db
-./certbot_logs
 
 mysql-tuning.cnf

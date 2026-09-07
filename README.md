@@ -26,9 +26,9 @@ In-progress with 2026 maintenance updates, [docs/old](docs/old) has some (outdat
 **Prerequisites:**
 
 1. Clone the [tinx-ui](https://github.com/unmtransinfo/tinx-ui) repo alongside this one (i.e. `../tinx-ui/`).
-2. Copy `.env.example` to `.env` and fill in credentials:
+2. Copy `.env.dev.example` to `.env` and fill in credentials:
    ```bash
-   cp .env.example .env
+   cp .env.dev.example .env
    # edit .env — at minimum change MYSQL_ROOT_PASSWORD and DB_PASSWORD
    ```
 3. Generate the MySQL tuning config:
@@ -40,7 +40,7 @@ In-progress with 2026 maintenance updates, [docs/old](docs/old) has some (outdat
 **Start all services:**
 
 ```bash
-docker compose -f docker-compose-dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 This brings up four services:
@@ -57,7 +57,7 @@ This brings up four services:
 **After the database is ready**, rebuild the Solr search index:
 
 ```bash
-docker compose -f docker-compose-dev.yml exec api python manage.py rebuild_index
+docker compose -f docker-compose.dev.yml exec api python manage.py rebuild_index
 ```
 
 If running the development version of TIN-X on another server (e.g., shishito.health.unm.edu), one can use SSH port-forwarding to access the api:
@@ -71,14 +71,12 @@ Then one can go to http://localhost:8000/ to view the API in-browser.
 
 The same goes for the UI, just use `TINX_UI_HTTP_PORT` instead of 8000 above.
 
-> **Note:** The production `docker-compose.yml` is being updated and is not yet ready for use. Use `docker-compose-dev.yml` for now.
-
 ### Running tests
 
 You will first need to launch the development environment using the instructions above. Then, one can run tests with:
 
 ```bash
-docker compose -f docker-compose-dev.yml exec api python manage.py test api.tests --verbosity=2
+docker compose -f docker-compose.dev.yml exec api python manage.py test api.tests --verbosity=2
 ```
 
 ### Upgrading Dependencies
@@ -115,7 +113,32 @@ You can run all pre-commit hooks manually without committing:
 pre-commit run --all-files
 ```
 
-## TODO:
+## Production / Deployment
 
-- Create GitHub actions workflow to publish built API image to DockerHub
-- Update [docker-compose.yml](docker-compose.yml), remove unnecessary prod dependencies (certbot, nginx)
+`docker-compose.prod.yml` mirrors `docker-compose.dev.yml`'s `db`/`api`/`solr` services
+(same healthchecks and DB tuning), but pulls `api` and `ui` from Docker Hub
+(`unmtransinfo/tinx_api`, `unmtransinfo/tinx_ui`) instead of building locally.
+
+Set up the same way as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run `./tune.sh` to generate `mysql-tuning.cnf`.
+
+Then bring it up:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+(Re-run both any time you want to pick up a new `:latest` build — plain `up -d` won't re-pull images on its own.)
+
+TLS termination and reverse proxying to `api.newdrugtargets.org` / `newdrugtargets.org`
+are handled by a host-level Apache outside of Docker, not by a container in this repo —
+`api` only binds to `127.0.0.1:${TINX_API_PORT}`, and `ui` builds its static files into
+`/var/www/tinx-ui` on the host. See [docs/Apache_Deployment.md](docs/Apache_Deployment.md)
+for the Apache config, including the `shishito.health.unm.edu` setup used as a testing
+ground before changes go to production.
+
+After the database is ready, rebuild the Solr search index the same way as in dev:
+
+```bash
+docker compose -f docker-compose.prod.yml exec api python manage.py rebuild_index
+```

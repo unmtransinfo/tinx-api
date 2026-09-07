@@ -1,0 +1,82 @@
+name: tinx-prod
+services:
+  db:
+    image: unmtransinfo/tinx_db:3.1
+    volumes:
+      - tinx-mysql-data:/var/lib/mysql
+      - ./mysql-tuning.cnf:/etc/mysql/conf.d/tuning.cnf:ro
+    env_file:
+      - .env
+    networks:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "mysql -u$$DB_USER -p$$DB_PASSWORD -e 'SELECT 1' $$MYSQL_DATABASE" ]
+      interval: 30s
+      timeout: 10s
+      # 1440x30s=12 hrs of tolerance
+      retries: 1440
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPUS}"
+          memory: "${DB_MEMORY}"
+  api:
+    image: unmtransinfo/tinx_api:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - ./tinxapi/tinxapi/secrets.example.py:/tinx/tinxapi/tinxapi/secrets.py
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${MYSQL_DATABASE:-tinx}
+      - DB_USER=${DB_USER:-tinx_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT:-3306}
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${TINX_API_PORT:-8000}:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8000/ || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  solr:
+    image: solr:6.6.6
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - backend
+    volumes:
+      - solr_data:/opt/solr/server/solr/mycores
+      - ./tinxapi/managed-schema:/opt/solr/server/solr/configsets/basic_configs/conf/managed-schema:ro
+    command: solr-precreate haystack /opt/solr/server/solr/configsets/basic_configs
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/haystack/admin/ping || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  ui:
+    image: unmtransinfo/tinx_ui:latest
+    volumes:
+      - /var/www/tinx-ui:/app/dist
+    env_file:
+      - .env
+    command: npm run ${BUILD_COMMAND}
+    restart: "no"
+networks:
+  backend:
+    driver: bridge
+volumes:
+  tinx-mysql-data:
+  solr_data:

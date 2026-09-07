@@ -8,10 +8,10 @@ set -e
 
 # ── Load environment variables ────────────────────────────────────────────────
 if [ ! -f .env ]; then
-    echo "ERROR: .env file not found. Copy .env.example to .env and fill in your values." >&2
+    echo "ERROR: .env file not found. Copy .env.dev.example or .env.prod.example to .env and fill in your values." >&2
     exit 1
 fi
-# shellcheck source=.env.example
+# shellcheck source=.env.dev.example
 source .env
 
 # ── Auto-derive MySQL tuning from DB_CPUS / DB_MEMORY ────────────────────────
