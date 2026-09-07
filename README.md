@@ -111,10 +111,6 @@ pre-commit run --all-files
 
 ## Production / Deployment
 
-`docker-compose.prod.yml` mirrors `docker-compose.dev.yml`'s `db`/`api`/`solr` services
-(same healthchecks and DB tuning), but pulls `api` and `ui` from Docker Hub
-(`unmtransinfo/tinx_api`, `unmtransinfo/tinx_ui`) instead of building locally.
-
 Set up the same way as dev: copy [.env.prod.example](.env.prod.example) to `.env` and fill it in, then run `./tune.sh` to generate `mysql-tuning.cnf`.
 
 Then bring it up:
@@ -126,15 +122,10 @@ docker compose -f docker-compose.prod.yml up -d
 
 (Re-run both any time you want to pick up a new `:latest` build — plain `up -d` won't re-pull images on its own.)
 
-TLS termination and reverse proxying to `api.newdrugtargets.org` / `newdrugtargets.org`
-are handled by a host-level Apache outside of Docker, not by a container in this repo —
-`api` only binds to `127.0.0.1:${TINX_API_PORT}`, and `ui` builds its static files into
-`/var/www/tinx-ui` on the host. See [docs/Apache_Deployment.md](docs/Apache_Deployment.md)
-for the Apache config, including the `shishito.health.unm.edu` setup used as a testing
-ground before changes go to production.
-
 After the database is ready, rebuild the Solr search index the same way as in dev:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec api python manage.py rebuild_index
 ```
+
+Note that TLS termination and proxying are handled by Apache, see [docs/Apache_Deployment.md](docs/Apache_Deployment.md).
